@@ -1,0 +1,5 @@
+01 :TAG:-Service.
+   05 :TAG:-servID      PIC 9(7).
+   05 :TAG:-description PIC X(35).
+   05 :TAG:-price       PIC 9(4)V9(2).
+   05 :TAG:-maintReqID  PIC 9(5).
