@@ -1,11 +1,11 @@
 *>****************************************************************
-*> Author:
-*> Date:
-*> Purpose:
+*> Author: Joseph Warren
+*> Date: 3/6/2019
+*> Purpose: Update an employee in the employee index file
 *> Tectonics: cobc
 *>*****************************************************************
 IDENTIFICATION DIVISION.
-PROGRAM-ID. ADMIN_ADD_EMPLOYEE.
+PROGRAM-ID. ADMIN_UPDATE_EMP.
 ENVIRONMENT DIVISION.
     INPUT-OUTPUT SECTION.
     FILE-CONTROL.
@@ -33,4 +33,4 @@ MAIN-PROCEDURE.
     WRITE IDX-EMPLOYEE FROM LS-EMPLOYEE
     CLOSE INDEX-FILE-EMP
    EXIT PARAGRAPH.
-END PROGRAM ADMIN_ADD_EMPLOYEE.
+END PROGRAM ADMIN_UPDATE_EMP.
