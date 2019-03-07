@@ -1,6 +1,6 @@
 01 :TAG:-PART.
-	05 :TAG:-PART-ID       PIC 9(5).
+    05 :TAG:-PART-ID       PIC 9(5).
     05 :TAG:-PART-NAME     PIC X(15).
     05 :TAG:-PART-DESC     PIC X(35).
-    05 :TAG:-PART-PRICE    PIC 999V99..
+    05 :TAG:-PART-PRICE    PIC 999V99.
     05 :TAG:-PART-SUPP     PIC 9(5).
