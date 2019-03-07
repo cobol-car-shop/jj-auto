@@ -10,32 +10,31 @@
                ORGANIZATION IS LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
+      * FD  CUSTOMER-INFO.
+      * 01  CUST-REC.
+      *     05  CUST-ID-REC                      PIC 9(5).
+      *     05  CUST-FNAME-REC                   PIC X(15).
+      *     05  CUST-LNAME-REC                   PIC X(15).
+      *     05  CUST-PHONE-REC                   PIC 9(10).
+      *     05  CUST-EMAIL-REC                   PIC X(35).
+      *     05  CUST-ADDRS-REC                   PIC X(35).
+      *     05  CUST-CITY-REC                    PIC X(15).
+      *     05  CUST-STATE-REC                   PIC XX.
+      *     05  CUST-ZIP-REC                     PIC 9(5).
        FD  CUSTOMER-INFO.
-       01  CUST-REC.
-           05  CUST-ID-REC                      PIC 9(5).
-           05  CUST-FNAME-REC                   PIC X(15).
-           05  CUST-LNAME-REC                   PIC X(15).
-           05  CUST-INIT-REC                    PIC X.
-           05  CUST-PHONE-REC                   PIC 9(10).
-           05  CUST-EMAIL-REC                   PIC X(35).
-           05  CUST-ADDRS-REC                   PIC X(35).
-           05  CUST-CITY-REC                    PIC X(15).
-           05  CUST-STATE-REC                   PIC XX.
-           05  CUST-ZIP-REC                     PIC 9(5).
-       FD  CUSTOMER-INFO.
-       01  PRINT-REC                            PIC X(138).
+       01  PRINT-REC                            PIC X(137).
        WORKING-STORAGE SECTION.
        01  TRANS-REC-IN.
            05  TRANS-ID-IN                      PIC 9(5)  VALUE 00001.
            05  TRANS-FNAME-IN                   PIC X(15).
            05  TRANS-LNAME-IN                   PIC X(15).
-           05  TRANS-INIT-IN                    PIC X.
            05  TRANS-PHONE-IN                   PIC 9(10).
            05  TRANS-EMAIL-IN                   PIC X(35).
            05  TRANS-ADDRS-IN                   PIC X(35).
            05  TRANS-CITY-IN                    PIC X(15).
            05  TRANS-STATE-IN                   PIC XX.
            05  TRANS-ZIP-IN                     PIC 9(5).
+
        01  WORK-AREAS.
            05  ARE-THERE-MORE-RECORDS          PIC X(1)
                   VALUE 'Y'.
@@ -49,7 +48,6 @@
            05  CUST-NO-OUT                     PIC 9(5).
            05  CUST-FNAME-OUT                  PIC X(15).
            05  CUST-LNAME-OUT                  PIC X(15).
-           05  CUST-INIT-OUT                   PIC X.
            05  CUST-PHONE-OUT                  PIC 9(10).
            05  CUST-EMAIL-OUT                  PIC X(35).
            05  CUST-ADDR-OUT                   PIC X(35).
@@ -87,7 +85,6 @@
                    AUTO.
                10  LINE 8 COLUMN 39        PIC X(20) TO TRANS-FNAME-IN.
                10  LINE PLUS 2 COLUMN 39   PIC X(20) TO TRANS-LNAME-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC X TO TRANS-INIT-IN.
                10  LINE PLUS 2 COLUMN 39   PIC 9(10) TO TRANS-PHONE-IN.
                10  LINE PLUS 2 COLUMN 39   PIC X(35) TO TRANS-EMAIL-IN.
                10  LINE PLUS 2 COLUMN 39   PIC X(35) TO TRANS-ADDRS-IN.
@@ -153,7 +150,6 @@
            MOVE TRANS-ID-IN TO CUST-NO-OUT
            MOVE TRANS-FNAME-IN TO CUST-FNAME-OUT
            MOVE TRANS-LNAME-IN TO CUST-LNAME-OUT
-           MOVE TRANS-INIT-IN TO CUST-INIT-OUT
            MOVE TRANS-PHONE-IN TO CUST-PHONE-OUT
            MOVE TRANS-EMAIL-IN TO CUST-EMAIL-OUT
            MOVE TRANS-ADDRS-IN TO CUST-ADDR-OUT
