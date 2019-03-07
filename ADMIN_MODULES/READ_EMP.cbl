@@ -1,11 +1,11 @@
 *>****************************************************************
 *> Author: Joseph Warren
 *> Date: 3/6/2019
-*> Purpose: Add an employee to the index file
+*> Purpose: Read an employee from the index file
 *> Tectonics: cobc
 *>*****************************************************************
 IDENTIFICATION DIVISION.
-PROGRAM-ID. ADD_EMP.
+PROGRAM-ID. READ_EMP.
 ENVIRONMENT DIVISION.
     INPUT-OUTPUT SECTION.
     FILE-CONTROL.
@@ -28,11 +28,11 @@ COPY EMP_DEF REPLACING ==:TAG:== BY ==LS==.
 
 PROCEDURE DIVISION USING LS-EMPLOYEE.
 MAIN-PROCEDURE.
-    OPEN OUTPUT INDEX-FILE-EMP
-    WRITE IDX-EMPLOYEE FROM LS-EMPLOYEE
-      INVALID KEY DISPLAY 'INVALID KEY : ' IDX-empID ' | IGNORING'
-      NOT INVALID KEY DISPLAY 'KEY ACCEPTED: ' IDX-empID ' ALT: ' IDX-lName
-    END-WRITE
+    OPEN INPUT INDEX-FILE-EMP
+    READ INDEX-FILE-EMP INTO LS-EMPLOYEE KEY IS LS-empID
+      INVALID KEY DISPLAY "INVALID KEY ON VALUE: " LS-empID
+      NOT INVALID KEY DISPLAY LS-EMPLOYEE
+    END-READ
     CLOSE INDEX-FILE-EMP
    EXIT PARAGRAPH.
-END PROGRAM ADD_EMP.
+END PROGRAM READ_EMP.
