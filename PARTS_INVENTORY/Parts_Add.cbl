@@ -14,7 +14,7 @@
       *-----------------------
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-               SELECT FIN ASSIGN TO DISK
+               SELECT FIN ASSIGN TO "../PARTLIST.DAT"
                ORGANIZATION IS INDEXED
                ACCESS IS RANDOM
                RECORD KEY IS PARTID.
@@ -22,10 +22,9 @@
        DATA DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
        FILE SECTION.
-       FD FIN
-           VALUE OF FILE-ID IS "../PARTLIST.DAT".
+       FD FIN RECORD CONTAINS 67 CHARACTERS.
            01 REC-IO.
-               05 PARTID       PIC 99.
+               05 PARTID       PIC 9(5).
                05 PARTNAME     PIC X(15).
                05 PARTDESC     PIC X(35).
                05 PARTPRICE    PIC $ZZ9.99.
@@ -35,12 +34,8 @@
        WORKING-STORAGE SECTION.
        01 WS-ERROR-MESSAGE     PIC X(40) VALUE SPACES.
        01 WS-DATA-VALIDATED    PIC X VALUE "F".
-       01 PART-OBJECT.
-           05 WS-PART-ID       PIC 9(5) VALUE 00000.
-           05 WS-PART-NAME     PIC X(15) VALUE SPACES.
-           05 WS-PART-DESC     PIC X(35) VALUE SPACES.
-           05 WS-PART-PRICE    PIC 999V99 VALUE 00000.
-           05 WS-PART-SUPP     PIC 9(5) VALUE 00000.
+       01 WS-RESULT-MESSAGE    PIC X(40) VALUE SPACES.
+       COPY PART_DEF REPLACING ==:TAG:== BY ==WS==.
        SCREEN SECTION.
        01 PART-ADD-SCREEN.
            05 TITLE-SECTION.
@@ -52,28 +47,45 @@
            05 DATA-ENTRY-SECTION.
                10 PART-ID-FIELD.
                    20 VALUE "Part ID: "                   LINE 5 COL 25.
-                   20 PART-ID PIC 9(5) FROM WS-PART-ID    LINE 5 COL 34.
+                   20 PART-ID PIC 9(5)
+                       FROM WS-PART-ID
+                       TO WS-PART-ID                      LINE 5 COL 34.
                10 PART-SUPP-FIELD.
                    20 VALUE "Supplier ID: "               LINE 7 COL 21.
                    20 PART-SUPP PIC 9(5)
                        FROM WS-PART-SUPP
-                       TO WS-PART-SUPP LINE 7 COL 34.
+                       TO WS-PART-SUPP                    LINE 7 COL 34.
                10 PART-NAME-FIELD.
                    20 VALUE "Part Name: "                 LINE 9 COL 23.
-                   20 PART-NAME PIC X(15) TO WS-PART-NAME LINE 9 COL 34.
+                   20 PART-NAME PIC X(15)
+                       FROM WS-PART-NAME
+                       TO WS-PART-NAME                    LINE 9 COL 34.
                10 PART-DESC-FIELD.
                    20 VALUE "Description: "              LINE 11 COL 21.
-                   20 PART-DESC PIC X(35) TO WS-PART-DESC
-                                                         LINE 11 COL 34.
+                   20 PART-DESC PIC X(35)
+                       FROM WS-PART-DESC
+                       TO WS-PART-DESC                   LINE 11 COL 34.
                10 PART-PRICE-FIELD.
                    20 VALUE "Part Price: "               LINE 13 COL 22.
-                   20 PART-PRICE PIC 999V99 TO WS-PART-PRICE
-                                                         LINE 13 COL 34.
+                   20 PART-PRICE PIC 999V99
+                       FROM WS-PART-PRICE
+                       TO WS-PART-PRICE                  LINE 13 COL 34.
            05 FOOTER-MESSAGES.
                10 ERROR-MESSAGE PIC X(40) FROM WS-ERROR-MESSAGE
                      JUSTIFIED BLANK LINE                LINE 18 COL 30.
                10 VALUE "PRESS ENTER TO SUBMIT THE FORM" LINE 20 COL 27.
-
+       01 CONFIRMATION-SCREEN.
+           05 TITLE-SECTION.
+               10 VALUE "PARTS INVENTORY MAINTENANCE" BLANK SCREEN
+                   LINE 1 COL 29.
+               10 VALUE "-----------------------------------------------
+      -             "--------------------------------"
+                  LINE 2 COL 1.
+           05 DATA-SECTION.
+               10 RESULT-MESSAGE PIC X(40)
+                   FROM WS-RESULT-MESSAGE                 LINE 5 COL 25.
+               10 NEW-PART-RECORD PIC X(100)
+                   FROM REC-IO TO REC-IO                  LINE 7 COL 10.
       *-----------------------
        PROCEDURE DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -81,9 +93,8 @@
       **
       * The main procedure of the program
       **
-            OPEN I-O FIN.
 
-            MOVE ZEROES TO WS-PART-SUPP.
+            OPEN OUTPUT FIN.
 
             PERFORM GET-NEXT-PART-ID.
             DISPLAY PART-ADD-SCREEN.
@@ -94,10 +105,18 @@
             PERFORM FINALIZE-PART-ADD.
 
             CLOSE FIN.
+
+            DISPLAY CONFIRMATION-SCREEN.
+            ACCEPT CONFIRMATION-SCREEN.
+
             GOBACK.
+
+       EXIT PARAGRAPH.
+
       ****** UNIMPLEMENTED - NEEDS TO RETURN FIRST AVAILABLE ID
        GET-NEXT-PART-ID.
            MOVE 12345 TO WS-PART-ID.
+       EXIT PARAGRAPH.
 
       * Validate that the data received is okay
        VALIDATE-DATA.
@@ -118,17 +137,18 @@
            IF WS-ERROR-MESSAGE = SPACES THEN
                MOVE "T" TO WS-DATA-VALIDATED
            END-IF.
+       EXIT PARAGRAPH.
 
       ****** This will commit the part to memory
        FINALIZE-PART-ADD.
-           MOVE WS-PART-ID TO PARTID.
-           MOVE WS-PART-NAME TO PARTNAME.
-           MOVE WS-PART-DESC TO PARTDESC.
-           MOVE WS-PART-PRICE TO PARTPRICE.
-           MOVE WS-PART-SUPP TO PARTSUPP.
+           MOVE WS-PART TO REC-IO.
            WRITE REC-IO
                INVALID KEY
-                   MOVE "ERROR INSERTING FILE" TO WS-ERROR-MESSAGE
+                   MOVE  "ERROR INSERTING RECORD" TO WS-RESULT-MESSAGE
+               NOT INVALID KEY
+                   MOVE "SUCCESSFULLY INSERTED RECORD"
+                       TO WS-RESULT-MESSAGE
            END-WRITE.
+       EXIT PARAGRAPH.
 
        END PROGRAM PARTS_ADD.
