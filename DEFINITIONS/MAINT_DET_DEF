@@ -1,4 +1,4 @@
-01 :TAG:-Maint-Detail.
-   05 :TAG:-maintDetID  PIC 9(5).
-   05 :TAG:-maintReqID  PIC 9(5).
-   05 :TAG:-invID       PIC 9(5).
+       01 :TAG:-Maint-Detail.
+          05 :TAG:-maintDetID  PIC 9(5).
+          05 :TAG:-maintReqID  PIC 9(5).
+          05 :TAG:-invID       PIC 9(5).
