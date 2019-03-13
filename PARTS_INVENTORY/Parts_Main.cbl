@@ -63,7 +63,6 @@
       * The main procedure of the program
       **
 
-
            PERFORM UNTIL END-LOOP = 'T'
                DISPLAY PARTS-HOME-SCREEN
                ACCEPT PARTS-HOME-SCREEN
@@ -72,6 +71,7 @@
 
 
            STOP RUN.
+       EXIT PARAGRAPH.
       ** add other procedures here
 
        100-VALIDATE-INPUT.
@@ -100,5 +100,5 @@
 
            MOVE "  " TO WS-USER-RESPONSE.
            MOVE "  " TO USER-RESPONSE.
-
+       EXIT PARAGRAPH.
        END PROGRAM PARTS_MAIN.

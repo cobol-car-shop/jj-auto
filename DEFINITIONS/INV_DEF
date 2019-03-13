@@ -1,6 +1,6 @@
-01 :TAG:-Inventory
-   05 :TAG:-invID       PIC 9(5)
-   05 :TAG:-name        PIC X(15)
-   05 :TAG:-description PIC X(35)
-   05 :TAG:-price       PIC 9(4)V9(2)
-   05 :TAG:-suppID      PIC 9(5)
+       01 :TAG:-Inventory
+          05 :TAG:-invID       PIC 9(5)
+          05 :TAG:-name        PIC X(15)
+          05 :TAG:-description PIC X(35)
+          05 :TAG:-price       PIC 9(4)V9(2)
+          05 :TAG:-suppID      PIC 9(5)
