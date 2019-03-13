@@ -81,7 +81,7 @@
 
            EVALUATE TRUE
                WHEN WS-USER-RESPONSE = 01
-                   MOVE "CHOSE OPTION 1" TO WS-ERROR-MESSAGE
+                   MOVE "PARTS_LOOKUP" TO WS-PROGRAM-TO-CALL
                WHEN WS-USER-RESPONSE = 02
                    MOVE "CHOSE OPTION 2" TO WS-ERROR-MESSAGE
                WHEN WS-USER-RESPONSE = 03
@@ -98,7 +98,5 @@
                CALL WS-PROGRAM-TO-CALL
            END-IF.
 
-           MOVE "  " TO WS-USER-RESPONSE.
-           MOVE "  " TO USER-RESPONSE.
        EXIT PARAGRAPH.
        END PROGRAM PARTS_MAIN.

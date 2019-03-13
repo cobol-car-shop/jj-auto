@@ -12,20 +12,20 @@
       *-----------------------
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-               SELECT FIN ASSIGN TO "../PARTLIST.DAT"
+               SELECT FIN ASSIGN TO "..\PARTLIST.DAT"
                ORGANIZATION IS INDEXED
                ACCESS IS RANDOM
-               RECORD KEY IS WS-PART-ID.
+               RECORD KEY IS PARTID.
       *-----------------------
        DATA DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
        FILE SECTION.
-       FD FIN RECORD CONTAINS 67 CHARACTERS.
+       FD FIN RECORD CONTAINS 65 CHARACTERS.
            01 REC-IO.
                05 PARTID       PIC 9(5).
                05 PARTNAME     PIC X(15).
                05 PARTDESC     PIC X(35).
-               05 PARTPRICE    PIC $ZZ9.99.
+               05 PARTPRICE    PIC 999v99.
                05 PARTSUPP     PIC 9(5).
       *-----------------------
        WORKING-STORAGE SECTION.
@@ -76,8 +76,8 @@
            05 USER-RESPONSE-SECTION.
                10 RESPONSE-FIELD.
                    20 USER-RESPONSE PIC X TO WS-DONE     LINE 20 COL 30.
-                   20 VALUE "ENTER 'Y' WHEN FINISHED, ENTER TO RESTART"
-                                                         LINE 20 COL 32.
+                   20 VALUE "'Y' WHEN FINISHED, 'D' TO DELETE, ENTER TO
+      -            "RESTART"                             LINE 20 COL 32.
       *-----------------------
        PROCEDURE DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -103,7 +103,7 @@
                    READ FIN INTO WS-PART KEY IS WS-PART-ID
                        INVALID KEY
                            DISPLAY "BAD KEY" LINE 18 COL 30
-                           MOVE "Y" TO WS-VALID
+                           MOVE "N" TO WS-VALID
                        NOT INVALID KEY
                            MOVE "Y" TO WS-VALID
                    END-READ
@@ -112,8 +112,8 @@
 
                DISPLAY OUTPUT-SCREEN END-DISPLAY
                ACCEPT OUTPUT-SCREEN END-ACCEPT
-      *     DISPLAY RESULT SCREEN.
-      *     GO BACK TO FIRST DISPLAY, UNLESS A BUTTON OR CODE IS ENTERED
+
+      *        handle deleting record if user enters a "D"
             END-PERFORM.
 
            CLOSE FIN.

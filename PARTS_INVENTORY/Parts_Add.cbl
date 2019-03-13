@@ -14,7 +14,7 @@
       *-----------------------
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-               SELECT FIN ASSIGN TO "../PARTLIST.DAT"
+               SELECT FIN ASSIGN TO "..\PARTLIST.DAT"
                ORGANIZATION IS INDEXED
                ACCESS IS RANDOM
                RECORD KEY IS PARTID.
@@ -27,7 +27,7 @@
                05 PARTID       PIC 9(5).
                05 PARTNAME     PIC X(15).
                05 PARTDESC     PIC X(35).
-               05 PARTPRICE    PIC $ZZ9.99.
+               05 PARTPRICE    PIC 99999.
                05 PARTSUPP     PIC 9(5).
 
       *-----------------------
@@ -67,7 +67,7 @@
                        TO WS-PART-DESC                   LINE 11 COL 34.
                10 PART-PRICE-FIELD.
                    20 VALUE "Part Price: "               LINE 13 COL 22.
-                   20 PART-PRICE PIC 999V99
+                   20 PART-PRICE PIC 99999
                        FROM WS-PART-PRICE
                        TO WS-PART-PRICE                  LINE 13 COL 34.
            05 FOOTER-MESSAGES.
@@ -84,8 +84,10 @@
            05 DATA-SECTION.
                10 RESULT-MESSAGE PIC X(40)
                    FROM WS-RESULT-MESSAGE                 LINE 5 COL 25.
-               10 NEW-PART-RECORD PIC X(100)
+               10 NEW-PART-RECORD PIC X(67)
                    FROM REC-IO TO REC-IO                  LINE 7 COL 10.
+               10 WS-PART-RECORD PIC X(67)
+                   FROM WS-PART TO WS-PART                LINE 9 COL 10.
       *-----------------------
        PROCEDURE DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
