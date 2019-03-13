@@ -1,9 +1,8 @@
-      ******************************************************************
-      * Author:
-      * Date:
-      * Purpose:
-      * Tectonics: cobc
-      ******************************************************************
+      *>*****************************************************************
+      *> Author:Aiden Stahl
+      *> Date:
+      *> Purpose: To allow sign in and base menus for the J&J System
+      *>*****************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. JJUI.
        DATA DIVISION.
@@ -28,8 +27,7 @@
          01 ERROR-SCREEN.
            05 FOREGROUND-COLOR 07
               BACKGROUND-COLOR 00.
-           10 LINE 5 COLUMN 1 VALUE "Your UserID or Password Was incorr
-      - "ect Type END to leave the program or press space to try again".
+           10 LINE 5 COLUMN 1 VALUE "Your UserID or Password Was incorrect Type END to leave the program or press space to try again".
            10 PIC X(3) TO PRESS-ANY-KEY.
        PROCEDURE DIVISION.
        100-MAIN-PROCEDURE.
@@ -40,7 +38,7 @@
        200-READ-DATA.
            DISPLAY AUTHSCREEN
            ACCEPT AUTHSCREEN
-      *    ACCOUNT-CHECK will get an INC for incorrect or a COR for Correct
+      *>    ACCOUNT-CHECK will get an INC for incorrect or a COR for Correct
            If ACCOUNT-CHECK = 'INC'
                THEN
                DISPLAY ERROR-SCREEN
