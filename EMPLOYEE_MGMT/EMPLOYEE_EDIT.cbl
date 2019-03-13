@@ -1,7 +1,7 @@
       ******************************************************************
       * Author: Matthew East
       * Date: 03/06/2019
-      * Purpose: Adds a new employee to the employee file (UI mock only)
+      * Purpose: Edits an employee in the employee file (UI mock only)
       * Tectonics: cobc
       ******************************************************************
        IDENTIFICATION DIVISION.
