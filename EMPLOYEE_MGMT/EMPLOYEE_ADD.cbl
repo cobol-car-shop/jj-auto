@@ -10,7 +10,7 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT OPTIONAL EMP-FILE
-               ASSIGN TO 'EMPLOYEE.IDX'
+               ASSIGN TO '../INDEXES/EMPLOYEE.IDX'
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS IDX-empID
@@ -32,7 +32,11 @@
            01 WS-POSTAL-CODE PIC 9(5).
            01 WS-WAGE PIC 9(5).9(2).
            01 WS-HOURLY PIC XXX.
+               88 HOURLY-VALID VALUE "YES", "NO".
            01 WS-POSITION PIC A(15).
+               88 POSITION-VALID
+                   VALUE "SALES", "MECHANIC", "ACCOUNTANT" "ADMIN".
+           01 IS-VALID PIC X VALUE 'N'.
            01 MORE-RECS PIC X VALUE 'Y'.
        SCREEN SECTION.
        01 EMPLOYEE-ADD-SCREEN BLANK SCREEN
@@ -45,11 +49,12 @@
            05 VALUE "-----" LINE 3 COL 25.
 
            05 VALUE "FIRST NAME" LINE 4 COL 10.
-           05 IN-FNAME PIC X(15) FROM WS-FNAME TO WS-FNAME
+           05 IN-FNAME PIC X(15) FROM WS-FNAME TO WS-FNAME REQUIRED
                LINE 4 COL 25.
 
            05 VALUE "LAST NAME" LINE 5 COL 10.
-           05 IN-LNAME FROM WS-LNAME TO WS-LNAME LINE 5 COL 25.
+           05 IN-LNAME FROM WS-LNAME TO WS-LNAME REQUIRED
+               LINE 5 COL 25.
 
            05 VALUE "SSN" LINE 6 COL 10.
            05 IN-SSN FROM WS-SSN TO WS-SSN LINE 6 COL 25.
@@ -75,10 +80,12 @@
 
            05 VALUE "WAGE" LINE 13 COL 10.
            05 VALUE "$" LINE 13 COL 25.
-           05 IN-WAGE FROM WS-WAGE TO WS-WAGE LINE 13 COL 26.
+           05 IN-WAGE FROM WS-WAGE TO WS-WAGE REQUIRED
+               LINE 13 COL 26.
 
            05 VALUE "HOURLY?" LINE 14 COL 10.
-           05 IN-HOURLY FROM WS-HOURLY TO WS-HOURLY LINE 14 COL 25.
+           05 IN-HOURLY FROM WS-HOURLY TO WS-HOURLY REQUIRED
+               LINE 14 COL 25.
 
            05 VALUE "POSITION" LINE 15 COL 10.
            05 IN-POSITION FROM WS-POSITION TO WS-POSITION
@@ -89,16 +96,34 @@
 
        PROCEDURE DIVISION.
        100-MAIN.
-           DISPLAY EMPLOYEE-ADD-SCREEN.
-           ACCEPT EMPLOYEE-ADD-SCREEN.
+           SET ENVIRONMENT "COB_SCREEN_EXCEPTIONS" TO "Y".
+           SET ENVIRONMENT "COB_SCREEN_ESC" TO "Y".
+           SET ENVIRONMENT "COB_BELL" TO "FLASH".
+           PERFORM UNTIL IS-VALID = 'Y'
+               DISPLAY EMPLOYEE-ADD-SCREEN
+               ACCEPT EMPLOYEE-ADD-SCREEN
+                   ON EXCEPTION
+                       IF COB-CRT-STATUS = 2005 THEN
+                           STOP RUN
+                       END-IF
+               END-ACCEPT
+
+               MOVE FUNCTION UPPER-CASE(WS-HOURLY) TO WS-HOURLY
+               IF HOURLY-VALID AND POSITION-VALID THEN
+                   MOVE 'Y' TO IS-VALID
+               ELSE
+                   DISPLAY SPACE WITH BELL
+               END-IF
+           END-PERFORM.
+
            OPEN INPUT EMP-FILE.
       *> Seek to the end of the file
            PERFORM UNTIL MORE-RECS = 'N'
              READ EMP-FILE
                AT END MOVE 'N' TO MORE-RECS
            END-PERFORM.
-
            CLOSE EMP-FILE.
+
            OPEN EXTEND EMP-FILE.
            IF IDX-EMPID IS NUMERIC THEN
                ADD 1 TO IDX-EMPID
