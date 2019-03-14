@@ -6,8 +6,14 @@
       ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. EMPLOYEE_BROWSE.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           CONSOLE IS CRT.
        DATA DIVISION.
        FILE SECTION.
+       WORKING-STORAGE SECTION.
+           01 WS-KEY PIC X.
        SCREEN SECTION.
        01 EMPLOYEE-VIEW-SCREEN BLANK SCREEN
            FOREGROUND-COLOR 7 BACKGROUND-COLOR 0.
@@ -64,5 +70,34 @@
        PROCEDURE DIVISION.
        100-MAIN.
            DISPLAY EMPLOYEE-VIEW-SCREEN.
+      *> The first two environment vars here let me handle arrow keys and the escape key
+      *> The third makes the screen flash when I call DISPLAY WITH BELL
+           SET ENVIRONMENT "COB_SCREEN_EXCEPTIONS" TO "Y".
+           SET ENVIRONMENT "COB_SCREEN_ESC" TO "Y".
+           SET ENVIRONMENT "COB_BELL" TO "FLASH".
+           ACCEPT WS-KEY
+               WITH NO ECHO
+               BACKGROUND-COLOR 1
+               AUTO-SKIP.
+           EVALUATE FUNCTION UPPER-CASE(WS-KEY)
+               WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
+               WHEN "E"
+                   CALL "SYSTEM" USING "EMPLOYEE_EDIT.exe"
+               WHEN "C"
+                   CALL "SYSTEM" USING "EMPLOYEE_ADD.exe"
+           END-EVALUATE.
+           ACCEPT WS-KEY AUTO-SKIP.
            STOP RUN.
+       200-HANDLE-SPECIAL-KEY.
+      *> Left Arrow - 2009
+      *> Right Arrow - 2010
+      *> Up Arrow - 2003
+      *> Down Arrow - 2004
+      *> ESC - 2005
+      *> See also: https://edoras.sdsu.edu/doc/GNU_Cobol_Programmers_Guide_2.1.pdf pg 345
+           EVALUATE COB-CRT-STATUS
+               WHEN 2005 STOP RUN
+               WHEN 2009 DISPLAY "TODO - LAST EMPLOYEE" WITH BELL
+               WHEN 2010 DISPLAY "TODO - NEXT EMPLOYEE" WITH BELL
+           END-EVALUATE.
        END PROGRAM EMPLOYEE_BROWSE.
