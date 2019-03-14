@@ -5,13 +5,16 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CUSTOMER-INFO ASSIGN TO 'C:\Users\Leslie\Documents\Git
-      -                          'Hub\jj-auto\CUSTOMER_MGMT\CUSINFO.RPT'
-               ORGANIZATION IS SEQUENTIAL.
+           SELECT OPTIONAL CUS-FILE
+           ASSIGN TO 'CUSTOMER.IDX'
+               ORGANIZATION IS INDEXED
+               ACCESS IS SEQUENTIAL
+               RECORD KEY IS CUST-ID-REC
+               ALTERNATE RECORD KEY IS CUST-LNAME-REC.
 
        DATA DIVISION.
        FILE SECTION.
-       FD  CUSTOMER-INFO.
+       FD  CUS-FILE.
        01  CUST-REC.
            05  CUST-ID-REC                      PIC 9(5).
            05  CUST-FNAME-REC                   PIC X(15).
@@ -22,7 +25,7 @@
            05  CUST-CITY-REC                    PIC X(15).
            05  CUST-STATE-REC                   PIC XX.
            05  CUST-ZIP-REC                     PIC 9(5).
-           05  CUS-DST-REC                      PIC X  VALUE 'N'.
+           05  CUST-DST-REC                      PIC X.
 
        WORKING-STORAGE SECTION.
        01  TRANS-REC-IN.
@@ -69,14 +72,20 @@
            05  WHITE                           PIC 9(1)    VALUE 7.
 
        SCREEN SECTION.
-       01  SCREEN-1.
-           05  BLANK SCREEN
-               FOREGROUND-COLOR 2
+       01  SCREEN-1
+               BLANK SCREEN
+               FOREGROUND-COLOR 7
                BACKGROUND-COLOR 0.
+           05  TITLE-BAR
+               FOREGROUND-COLOR 1
+               BACKGROUND-COLOR 0.
+               10  LINE 4 COLUMN 40
+                   VALUE "Customer Management: Add Customer".
+
            05  INPUT-PROMPTS.
                10  LINE 8 COLUMN 20       VALUE "FIRST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "LAST NAME: ".
-               10  LINE PLUS 2 COLUMN 20      VALUE "PHONE NUMBER: ".
+               10  LINE PLUS 2 COLUMN 20  VALUE "PHONE NUMBER: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "EMAIL ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STREET ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "CITY: ".
@@ -123,46 +132,63 @@
                    AUTO
                    PIC X(1) TO MORE-RECS.
 
+       01  CLEAR-SCREEN.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR GREEN
+               BACKGROUND-COLOR BLACK.
+
        PROCEDURE DIVISION.
       ****************************************************
       *     All program logic is controlled by           *
       *          100-MAIN-MODULE                         *
       ****************************************************
        100-MAIN-MODULE.
-           OPEN I-O CUSTOMER-INFO
+           OPEN INPUT CUS-FILE
            MOVE FUNCTION CURRENT-DATE TO WS-DATE
            PERFORM UNTIL MORE-RECS = "N"
-             READ CUSTOMER-INFO
+             READ CUS-FILE
                AT END
                  MOVE "N" TO MORE-RECS
-                 MOVE CUST-ID-REC TO TRANS-ID-IN
-                 ADD 1 TO TRANS-ID-IN
+                 IF CUST-ID-REC IS NUMERIC THEN
+                   MOVE CUST-ID-REC TO TRANS-ID-IN
+                   ADD 1 TO TRANS-ID-IN
+                 ELSE
+                   MOVE 1 TO TRANS-ID-IN
+                 END-IF
              END-READ
            END-PERFORM
+           CLOSE CUS-FILE
+           OPEN EXTEND CUS-FILE
+           MOVE "Y" TO MORE-RECS
            PERFORM UNTIL MORE-RECS = "N" OR "n"
                MOVE "N" TO DATA-OK
                PERFORM UNTIL DATA-OK = "Y" OR "y"
+                   DISPLAY CLEAR-SCREEN
                    DISPLAY SCREEN-1
                    ACCEPT SCREEN-1
                    DISPLAY SCREEN-2
                    ACCEPT SCREEN-2
                END-PERFORM
+
                PERFORM 200-ADD-RTN
                DISPLAY SCREEN-3
                ACCEPT SCREEN-3
            END-PERFORM
-           CLOSE    CUSTOMER-INFO
+           CLOSE CUS-FILE
            STOP RUN.
 
        200-ADD-RTN.
-           MOVE TRANS-ID-IN TO CUST-NO-OUT
-           MOVE TRANS-FNAME-IN TO CUST-FNAME-OUT
-           MOVE TRANS-LNAME-IN TO CUST-LNAME-OUT
-           MOVE TRANS-PHONE-IN TO CUST-PHONE-OUT
-           MOVE TRANS-EMAIL-IN TO CUST-EMAIL-OUT
-           MOVE TRANS-ADDRS-IN TO CUST-ADDR-OUT
-           MOVE TRANS-CITY-IN TO CUST-CITY-OUT
-           MOVE TRANS-STATE-IN TO CUST-STATE-OUT
-           MOVE TRANS-ZIP-IN TO CUST-ZIP-OUT
-           MOVE TRANS-DST-IN TO CUST-DST-OUT
-           WRITE CUST-REC FROM DETAIL-REC-OUT.
+           MOVE TRANS-ID-IN TO CUST-ID-REC
+           MOVE TRANS-FNAME-IN TO CUST-FNAME-REC
+           MOVE TRANS-LNAME-IN TO CUST-LNAME-REC
+           MOVE TRANS-PHONE-IN TO CUST-PHONE-REC
+           MOVE TRANS-EMAIL-IN TO CUST-EMAIL-REC
+           MOVE TRANS-ADDRS-IN TO CUST-ADDRS-REC
+           MOVE TRANS-CITY-IN TO CUST-CITY-REC
+           MOVE TRANS-STATE-IN TO CUST-STATE-REC
+           MOVE TRANS-ZIP-IN TO CUST-ZIP-REC
+           MOVE TRANS-DST-IN TO CUST-DST-REC
+           WRITE CUST-REC
+           ADD 1 TO TRANS-ID-IN.
+
+       END PROGRAM CUSADD.
