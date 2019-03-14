@@ -34,7 +34,7 @@ SCREEN SECTION.
                    05 FOREGROUND-COLOR 07
                    BACKGROUND-COLOR 00
                    ERASE SCREEN.
-                   10 LINE 24 COLUMN 20 VALUE "Please enter the number next to the desired Program. Enter a 0 before a single digit number: "
+                   10 LINE 24 COLUMN 20 VALUE "Please enter the number next to the desired Program. Enter a 0 before a single digit number: ".
                    10 PIC 9(2) TO RESPONSE.
  01 SALES-SCREEN.
            05 FOREGROUND-COLOR 07
@@ -73,6 +73,7 @@ SCREEN SECTION.
            10 LINE 1 COLUMN 60 VALUE "REPORTING".
 PROCEDURE DIVISION.
 100-MAIN-PROCEDURE.
+    DISPLAY MENU-SCREEN
     MOVE 0 TO NUMERIC-LABEL
     PERFORM 200-CHECK-PERMISSIONS
     PERFORM 300-COLLECT-INPUT
