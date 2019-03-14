@@ -1,31 +1,35 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID.
-           CUSTOMERAUDV.
+           CUSADD.
       *    Programmer: Jonathan Walker
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CUSTOMER-INFO ASSIGN TO 'C:/Users/Leslie/Documents/Pro
-      -                               'gramming/CIS334/CUSTOMERAUDV.RPT'
-               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT OPTIONAL CUS-FILE
+           ASSIGN TO 'CUSTOMER.IDX'
+               ORGANIZATION IS INDEXED
+               ACCESS IS SEQUENTIAL
+               RECORD KEY IS CUST-ID-REC
+               ALTERNATE RECORD KEY IS CUST-LNAME-REC.
+
        DATA DIVISION.
        FILE SECTION.
-      * FD  CUSTOMER-INFO.
-      * 01  CUST-REC.
-      *     05  CUST-ID-REC                      PIC 9(5).
-      *     05  CUST-FNAME-REC                   PIC X(15).
-      *     05  CUST-LNAME-REC                   PIC X(15).
-      *     05  CUST-PHONE-REC                   PIC 9(10).
-      *     05  CUST-EMAIL-REC                   PIC X(35).
-      *     05  CUST-ADDRS-REC                   PIC X(35).
-      *     05  CUST-CITY-REC                    PIC X(15).
-      *     05  CUST-STATE-REC                   PIC XX.
-      *     05  CUST-ZIP-REC                     PIC 9(5).
-       FD  CUSTOMER-INFO.
-       01  PRINT-REC                            PIC X(137).
+       FD  CUS-FILE.
+       01  CUST-REC.
+           05  CUST-ID-REC                      PIC 9(5).
+           05  CUST-FNAME-REC                   PIC X(15).
+           05  CUST-LNAME-REC                   PIC X(15).
+           05  CUST-PHONE-REC                   PIC 9(10).
+           05  CUST-EMAIL-REC                   PIC X(35).
+           05  CUST-ADDRS-REC                   PIC X(35).
+           05  CUST-CITY-REC                    PIC X(15).
+           05  CUST-STATE-REC                   PIC XX.
+           05  CUST-ZIP-REC                     PIC 9(5).
+           05  CUST-DST-REC                      PIC X.
+
        WORKING-STORAGE SECTION.
        01  TRANS-REC-IN.
-           05  TRANS-ID-IN                      PIC 9(5)  VALUE 00001.
+           05  TRANS-ID-IN                      PIC 9(5).
            05  TRANS-FNAME-IN                   PIC X(15).
            05  TRANS-LNAME-IN                   PIC X(15).
            05  TRANS-PHONE-IN                   PIC 9(10).
@@ -34,9 +38,10 @@
            05  TRANS-CITY-IN                    PIC X(15).
            05  TRANS-STATE-IN                   PIC XX.
            05  TRANS-ZIP-IN                     PIC 9(5).
+           05  TRANS-DST-IN                     PIC X     VALUE 'N'.
 
        01  WORK-AREAS.
-           05  ARE-THERE-MORE-RECORDS          PIC X(1)
+           05  MORE-RECS          PIC X(1)
                   VALUE 'Y'.
            05  DATA-OK                         PIC X(1).
            05  WS-DATE.
@@ -54,6 +59,7 @@
            05  CUST-CITY-OUT                   PIC X(15).
            05  CUST-STATE-OUT                  PIC XX.
            05  CUST-ZIP-OUT                    PIC 9(5).
+           05  CUST-DST-OUT                    PIC X.
 
        01  COLOR-LIST.
            05  BLACK                           PIC 9(1)    VALUE 0.
@@ -66,15 +72,20 @@
            05  WHITE                           PIC 9(1)    VALUE 7.
 
        SCREEN SECTION.
-       01  SCREEN-1.
-           05  BLANK SCREEN
-               FOREGROUND-COLOR 2
+       01  SCREEN-1
+               BLANK SCREEN
+               FOREGROUND-COLOR 7
                BACKGROUND-COLOR 0.
+           05  TITLE-BAR
+               FOREGROUND-COLOR 1
+               BACKGROUND-COLOR 0.
+               10  LINE 4 COLUMN 40
+                   VALUE "Customer Management: Add Customer".
+
            05  INPUT-PROMPTS.
                10  LINE 8 COLUMN 20       VALUE "FIRST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "LAST NAME: ".
-               10  LINE PLUS 2 COLUMN 20  VALUE "MIDDLE INITIAL: ".
-               10  LINE PLUS 2 COLUMN 20      VALUE "PHONE NUMBER: ".
+               10  LINE PLUS 2 COLUMN 20  VALUE "PHONE NUMBER: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "EMAIL ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STREET ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "CITY: ".
@@ -94,7 +105,7 @@
        01  SCREEN-2.
            05  BACKGROUND-COLOR BLACK
                AUTO.
-               10  LINE 18 COLUMN 20
+               10  LINE 25 COLUMN 20
                        VALUE "IS CUSTOMER INFOMATION CORRECT"
                        FOREGROUND-COLOR RED
                        HIGHLIGHT.
@@ -119,7 +130,12 @@
            05  FOREGROUND-COLOR CYAN
                    BACKGROUND-COLOR BLACK
                    AUTO
-                   PIC X(1) TO ARE-THERE-MORE-RECORDS.
+                   PIC X(1) TO MORE-RECS.
+
+       01  CLEAR-SCREEN.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR GREEN
+               BACKGROUND-COLOR BLACK.
 
        PROCEDURE DIVISION.
       ****************************************************
@@ -127,34 +143,52 @@
       *          100-MAIN-MODULE                         *
       ****************************************************
        100-MAIN-MODULE.
-           OPEN OUTPUT CUSTOMER-INFO
+           OPEN INPUT CUS-FILE
            MOVE FUNCTION CURRENT-DATE TO WS-DATE
-           PERFORM UNTIL ARE-THERE-MORE-RECORDS = "N" OR "n"
+           PERFORM UNTIL MORE-RECS = "N"
+             READ CUS-FILE
+               AT END
+                 MOVE "N" TO MORE-RECS
+                 IF CUST-ID-REC IS NUMERIC THEN
+                   MOVE CUST-ID-REC TO TRANS-ID-IN
+                   ADD 1 TO TRANS-ID-IN
+                 ELSE
+                   MOVE 1 TO TRANS-ID-IN
+                 END-IF
+             END-READ
+           END-PERFORM
+           CLOSE CUS-FILE
+           OPEN EXTEND CUS-FILE
+           MOVE "Y" TO MORE-RECS
+           PERFORM UNTIL MORE-RECS = "N" OR "n"
                MOVE "N" TO DATA-OK
                PERFORM UNTIL DATA-OK = "Y" OR "y"
+                   DISPLAY CLEAR-SCREEN
                    DISPLAY SCREEN-1
                    ACCEPT SCREEN-1
                    DISPLAY SCREEN-2
                    ACCEPT SCREEN-2
                END-PERFORM
+
                PERFORM 200-ADD-RTN
                DISPLAY SCREEN-3
                ACCEPT SCREEN-3
            END-PERFORM
-           CLOSE    CUSTOMER-INFO
+           CLOSE CUS-FILE
            STOP RUN.
 
        200-ADD-RTN.
-      *    INCREMENT CUST-ID VALUE FROM LAST RECORD IN FILE. GIVE TO
-      *    TRANS-ID-IN
-           MOVE TRANS-ID-IN TO CUST-NO-OUT
-           MOVE TRANS-FNAME-IN TO CUST-FNAME-OUT
-           MOVE TRANS-LNAME-IN TO CUST-LNAME-OUT
-           MOVE TRANS-PHONE-IN TO CUST-PHONE-OUT
-           MOVE TRANS-EMAIL-IN TO CUST-EMAIL-OUT
-           MOVE TRANS-ADDRS-IN TO CUST-ADDR-OUT
-           MOVE TRANS-CITY-IN TO CUST-CITY-OUT
-           MOVE TRANS-STATE-IN TO CUST-STATE-OUT
-           MOVE TRANS-ZIP-IN TO CUST-ZIP-OUT
-           WRITE PRINT-REC FROM DETAIL-REC-OUT
+           MOVE TRANS-ID-IN TO CUST-ID-REC
+           MOVE TRANS-FNAME-IN TO CUST-FNAME-REC
+           MOVE TRANS-LNAME-IN TO CUST-LNAME-REC
+           MOVE TRANS-PHONE-IN TO CUST-PHONE-REC
+           MOVE TRANS-EMAIL-IN TO CUST-EMAIL-REC
+           MOVE TRANS-ADDRS-IN TO CUST-ADDRS-REC
+           MOVE TRANS-CITY-IN TO CUST-CITY-REC
+           MOVE TRANS-STATE-IN TO CUST-STATE-REC
+           MOVE TRANS-ZIP-IN TO CUST-ZIP-REC
+           MOVE TRANS-DST-IN TO CUST-DST-REC
+           WRITE CUST-REC
            ADD 1 TO TRANS-ID-IN.
+
+       END PROGRAM CUSADD.
