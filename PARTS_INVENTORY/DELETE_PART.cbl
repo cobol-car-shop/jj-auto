@@ -4,7 +4,7 @@
       * Purpose: Deletes a part from the index file, given an empty part
       *            variable. Will also return the part to be deleted.
       * RETURN CODES:
-      *     00 -> PART DELETED - PART RETURNED
+      *     01 -> PART DELETED - PART RETURNED
       *     99 -> PART NOT FOUND - NO PART RETURNED
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -62,7 +62,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
                    MOVE 'T' TO WS-VALID-PART
            END-READ.
 
@@ -77,7 +77,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
            END-DELETE.
 
        END-PARAGRAPH.

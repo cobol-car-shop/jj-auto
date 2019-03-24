@@ -3,7 +3,7 @@
       * Date: 03/22/19
       * Purpose: Adds the part passed to the module into the index file
       * RETURN CODES:
-      *    00 -> SUCCESSFUL ADDING PART - PART RETURNED
+      *    01 -> SUCCESSFUL ADDING PART - PART RETURNED
       *    99 -> PART NUMBER TAKEN - PART NOT ADDED, PART NOT RETURNED
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -17,7 +17,7 @@
        FILE-CONTROL.
                SELECT IDXFILE ASSIGN TO "..\PARTLIST.DAT"
                ORGANIZATION IS INDEXED
-               ACCESS IS RANDOM
+               ACCESS IS DYNAMIC
                RECORD KEY IS REC-PART-ID.
       *-----------------------
        DATA DIVISION.
@@ -37,6 +37,9 @@
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
        0100-BEGIN.
                OPEN I-O IDXFILE.
+
+               DISPLAY LS-PART
+               ACCEPT LS-RESULT-CODE
 
                IF LS-PART-ID = 00000 THEN
                    PERFORM 0110-GENERATE-PART-ID
@@ -89,7 +92,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
            END-WRITE.
        END-PARAGRAPH.
 

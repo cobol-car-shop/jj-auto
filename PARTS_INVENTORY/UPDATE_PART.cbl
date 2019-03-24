@@ -3,7 +3,7 @@
       * Date: 03/22/19
       * Purpose: Updates a record in the index file, returning new rec
       * RETURN CODES:
-      *     00 -> UPDATE SUCCESSFUL - PART RETURNED
+      *     01 -> UPDATE SUCCESSFUL - PART RETURNED
       *     99 -> UPDATE FAILED, BAD KEY - NO PART RETURNED
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -17,7 +17,7 @@
        FILE-CONTROL.
                SELECT IDXFILE ASSIGN TO "..\PARTLIST.DAT"
                ORGANIZATION IS INDEXED
-               ACCESS IS RANDOM
+               ACCESS IS DYNAMIC
                RECORD KEY IS REC-PART-ID.
       *-----------------------
        DATA DIVISION.
@@ -62,7 +62,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
                    MOVE 'T' TO WS-VALID-PART
            END-READ.
 
@@ -76,7 +76,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
                    MOVE REC-PART TO LS-PART
            END-REWRITE.
 

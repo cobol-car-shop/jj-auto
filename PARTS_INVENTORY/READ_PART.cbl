@@ -4,7 +4,7 @@
       * Purpose: Reads the part from the index file, given a part var
       *            that is empty besides a part number
       * RETURN CODES:
-      *     00 -> SUCCESSFUL READING PART - PART RETURNED
+      *     01 -> SUCCESSFUL READING PART - PART RETURNED
       *     99 -> INVALID PART NUMBER - PART NOT RETURNED
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -46,7 +46,7 @@
                INVALID KEY
                    MOVE 99 TO LS-RESULT-CODE
                NOT INVALID KEY
-                   MOVE 00 TO LS-RESULT-CODE
+                   MOVE 01 TO LS-RESULT-CODE
            END-READ.
 
            CLOSE IDXFILE.
