@@ -38,9 +38,6 @@
        0100-BEGIN.
                OPEN I-O IDXFILE.
 
-               DISPLAY LS-PART
-               ACCEPT LS-RESULT-CODE
-
                IF LS-PART-ID = 00000 THEN
                    PERFORM 0110-GENERATE-PART-ID
                ELSE
@@ -62,6 +59,9 @@
       * Assigns the first available part number to LS-PART-ID *
       *********************************************************
        0110-GENERATE-PART-ID.
+
+           MOVE 00000 TO REC-PART-ID.
+
            PERFORM UNTIL WS-VALID-PART = 'T'
                ADD 1 TO REC-PART-ID
                READ IDXFILE
@@ -69,6 +69,8 @@
                        MOVE 'T' TO WS-VALID-PART
                END-READ
            END-PERFORM.
+
+           MOVE REC-PART-ID TO LS-PART-ID.
        END-PARAGRAPH.
 
       ************************************************************

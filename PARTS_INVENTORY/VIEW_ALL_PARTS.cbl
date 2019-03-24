@@ -27,24 +27,22 @@
        WORKING-STORAGE SECTION.
        *> The variables passed to any called programs
        01  LS-RESPONSE     PIC 99.
-       COPY PART_DEF REPLACING ==:TAG:== BY ==LS==.
+
+       01  WS-PROGRAM-TO-CALL PIC X(30).
+
        01  WS-EOF          PIC X VALUE 'F'.
 
        01  WS-RESPONSE-TEXT    PIC X(60).
 
        *> The tableS used to store the data displayed on screen
        01 WS-INPUT-FIELDS.
-           05 WS-USER-INPUT PIC XX OCCURS 10 TIMES.
+           05 WS-USER-INPUT PIC X OCCURS 10 TIMES.
        01 WS-PART-TABLE.
                05 WS-PART-ROW OCCURS 10 TIMES INDEXED BY ROW-IDX.
                    10 WS-PART-ID       PIC 9(5).
-                   10 FILLER           PIC X VALUE SPACE.
                    10 WS-PART-NAME     PIC X(15).
-                   10 FILLER           PIC X VALUE SPACE.
                    10 WS-PART-DESC     PIC X(35).
-                   10 FILLER           PIC X VALUE SPACE.
-                   10 WS-PART-PRICE    PIC 999.99.
-                   10 FILLER           PIC X VALUE SPACE.
+                   10 WS-PART-PRICE    PIC 999V99.
                    10 WS-PART-SUPP     PIC 9(5).
 
        SCREEN SECTION.
@@ -64,35 +62,75 @@
                10 VALUE "| SID |"                        LINE  3 COL 71.
            05 PART-LINES-SECTION.
                 *> ROW 1
-               10 PIC XX USING WS-USER-INPUT(1)          LINE  5 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(1)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(1)           LINE  5 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(1)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(1)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(1)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(1)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(1)                 COL 72.
                 *> ROW 2
-               10 PIC XX USING WS-USER-INPUT(2)          LINE  7 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(2)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(2)           LINE  7 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(2)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(2)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(2)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(2)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(2)                 COL 72.
                 *> ROW 3
-               10 PIC XX USING WS-USER-INPUT(3)          LINE  9 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(3)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(3)           LINE  9 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(3)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(3)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(3)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(3)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(3)                 COL 72.
                 *> ROW 4
-               10 PIC XX USING WS-USER-INPUT(4)          LINE 11 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(4)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(4)           LINE 11 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(4)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(4)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(4)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(4)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(4)                 COL 72.
                 *> ROW 5
-               10 PIC XX USING WS-USER-INPUT(5)          LINE 13 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(5)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(5)           LINE 13 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(5)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(5)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(5)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(5)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(5)                 COL 72.
                 *> ROW 6
-               10 PIC XX USING WS-USER-INPUT(6)          LINE 15 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(6)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(6)           LINE 15 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(6)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(6)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(6)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(6)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(6)                 COL 72.
                 *> ROW 7
-               10 PIC XX USING WS-USER-INPUT(7)          LINE 17 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(7)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(7)           LINE 17 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(7)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(7)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(7)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(7)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(7)                 COL 72.
                 *> ROW 8
-               10 PIC XX USING WS-USER-INPUT(8)          LINE 19 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(8)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(8)           LINE 19 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(8)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(8)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(8)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(8)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(8)                 COL 72.
                 *> ROW 9
-               10 PIC XX USING WS-USER-INPUT(9)          LINE 21 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(9)                 COL  7.
+               10 PIC X USING WS-USER-INPUT(9)           LINE 21 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(9)                   COL  7.
+               10 PIC X(15) USING WS-PART-NAME(9)                COL 13.
+               10 PIC X(35) USING WS-PART-DESC(9)                COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(9)              COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(9)                 COL 72.
                 *> ROW 10
-               10 PIC XX USING WS-USER-INPUT(10)         LINE 23 COL  4.
-               10 PIC X(70) USING WS-PART-ROW(10)                COL  7.
+               10 PIC X USING WS-USER-INPUT(10)          LINE 23 COL  4.
+               10 PIC 9(5) USING WS-PART-ID(10)                  COL  7.
+               10 PIC X(15) USING WS-PART-NAME(10)               COL 13.
+               10 PIC X(35) USING WS-PART-DESC(10)               COL 29.
+               10 PIC 999V99 USING WS-PART-PRICE(10)             COL 65.
+               10 PIC 9(5) USING WS-PART-SUPP(10)                COL 72.
            05 USER-INFO-SECTION.
               10  DISP-MORE-REC PIC XXXXXX               LINE 24 COL 70.
 
@@ -147,19 +185,13 @@
        *> Reads the next part from the file, and moves it into the row
        READ-PART-INTO-TABLE-ROW.
 
-           READ IDXFILE NEXT RECORD INTO REC-PART
+           READ IDXFILE NEXT RECORD INTO WS-PART-ROW(ROW-IDX)
                AT END
                    MOVE "BOTTOM" TO DISP-MORE-REC
                    MOVE 'T' TO WS-EOF
                NOT AT END
                    MOVE "MORE.." TO DISP-MORE-REC
-           END-READ
-
-           MOVE REC-PART-ID TO WS-PART-ID(ROW-IDX).
-           MOVE REC-PART-NAME TO WS-PART-NAME(ROW-IDX).
-           MOVE REC-PART-DESC TO WS-PART-DESC(ROW-IDX).
-           MOVE REC-PART-PRICE TO WS-PART-PRICE(ROW-IDX).
-           MOVE REC-PART-SUPP TO WS-PART-SUPP(ROW-IDX).
+           END-READ.
 
        END-PARAGAPH.
 
@@ -179,29 +211,31 @@
 
                *> Reset the response variable
                MOVE 00 TO LS-RESPONSE
-
-               *> Transfer the formatted part to a default part definition
-               MOVE WS-PART-ID(ROW-IDX) TO LS-PART-ID
-               MOVE WS-PART-NAME(ROW-IDX) TO LS-PART-NAME
-               MOVE WS-PART-DESC(ROW-IDX) TO LS-PART-DESC
-               MOVE WS-PART-PRICE(ROW-IDX) TO LS-PART-PRICE
-               MOVE WS-PART-SUPP(ROW-IDX) TO LS-PART-SUPP
+               MOVE SPACES TO WS-PROGRAM-TO-CALL
 
                *> Parse the user input for an action to complete
                EVALUATE WS-USER-INPUT(ROW-IDX)
                    WHEN 'D'
-                       CALL 'DELETE_PART' USING LS-PART, LS-RESPONSE
+                       MOVE 'DELETE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'd'
-                       CALL 'DELETE_PART' USING LS-PART, LS-RESPONSE
+                       MOVE 'DELETE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'U'
-                       CALL 'UPDATE_PART' USING LS-PART, LS-RESPONSE
+                       MOVE 'UPDATE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'u'
-                       CALL 'UPDATE_PART' USING LS-PART, LS-RESPONSE
+                       MOVE 'UPDATE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'A'
-                       CALL 'ADD_PART'  USING LS-PART, LS-RESPONSE
+                       MOVE 'ADD_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'a'
-                       CALL 'ADD_PART'  USING LS-PART, LS-RESPONSE
+                       MOVE 'ADD_PART' TO WS-PROGRAM-TO-CALL
                END-EVALUATE
+
+               *> Call the appropriate program, if any
+               IF WS-PROGRAM-TO-CALL <> SPACES THEN
+                   CLOSE IDXFILE
+                   CALL WS-PROGRAM-TO-CALL
+                       USING WS-PART-ROW(ROW-IDX), LS-RESPONSE
+                   OPEN I-O IDXFILE
+               END-IF
 
                *> Generate the appropriate confirmation message
                EVALUATE LS-RESPONSE
@@ -212,8 +246,6 @@
                        MOVE "OPERATION FAILED, PRESS ENTER TO CONTINUE."
                        TO WS-RESPONSE-TEXT
                END-EVALUATE
-
-               DISPLAY LS-RESPONSE
 
                *> Display the confirmation message, if any
                IF LS-RESPONSE > 00 THEN
