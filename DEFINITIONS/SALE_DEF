@@ -1,0 +1,11 @@
+       01 :TAG:-Sale.
+          05 :TAG:-saleID    PIC 9(5).
+          05 :TAG:-carVIN    PIC X(17).
+          05 :TAG:-custID    PIC 9(5).
+          05 :TAG:-empID     PIC 9(5).
+          05 :TAG:-price     PIC 9(6)V9(2).
+          05 :TAG:-mileage   PIC 9(7).
+          05 :TAG:-saleDate.
+             10 :TAG:-year   PIC 9(4).
+             10 :TAG:-month  PIC 9(2).
+             10 :TAG:-day    PIC 9(2).

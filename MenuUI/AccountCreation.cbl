@@ -20,6 +20,7 @@
                05 USERNAME PIC X(30).
                05 PERMISSION PIC X(5).
                05 HASH PIC X(128).
+
        WORKING-STORAGE SECTION.
        01 SHA3-OUTPUT    PIC X(128).
        01 TEMP-USERNAME PIC X(30).
