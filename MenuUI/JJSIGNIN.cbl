@@ -60,7 +60,7 @@
       *>    ACCOUNT-CHECK will get an INC for incorrect or a COR for Correct
            If ACCOUNT-CHECK = 'INC'
                THEN
-               PERFORM 500-CALL-ERROR
+                PERFORM 500-CALL-ERROR
                END-IF.
        300-CHECK-ACCOUNT.
            MOVE 'COR' TO ACCOUNT-CHECK
@@ -68,6 +68,7 @@
            MOVE USERNAME-IN TO USERNAME
            READ ACCOUNT-FILE
            INVALID KEY MOVE 'INC' TO ACCOUNT-CHECK
+           END-READ
            IF ACCOUNT-CHECK = 'COR'
                THEN
                MOVE PASSWORD-IN TO TEMP-PASSWORD
@@ -80,10 +81,13 @@
                      CALL "JJUI" USING USERNAME-IN
                                        PERMISSION-IN
                      END-CALL
+                ELSE
+                    DISPLAY ERROR-SCREEN
                      END-IF
+                     ELSE
+                    DISPLAY ERROR-SCREEN
                 END-IF
-          CLOSE ACCOUNT-FILE.
-
+                                 CLOSE ACCOUNT-FILE.
         400-HASH-PASS.
             INITIALIZE TEMP-HASH
             INSPECT FUNCTION REVERSE (TEMP-PASSWORD)
