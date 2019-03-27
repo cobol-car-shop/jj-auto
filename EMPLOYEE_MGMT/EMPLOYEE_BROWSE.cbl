@@ -98,11 +98,13 @@
                EVALUATE FUNCTION UPPER-CASE(WS-KEY)
                    WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
                    WHEN "E"
-                       CALL "SYSTEM" USING "EMPLOYEE_EDIT.exe"
+                       CALL "SYSTEM" USING "EMPLOYEE_EDIT"
                    WHEN "C"
-                       CALL "SYSTEM" USING "EMPLOYEE_ADD.exe"
+                       CALL "SYSTEM" USING "EMPLOYEE_ADD"
                END-EVALUATE
+               DISPLAY EMPLOYEE-VIEW-SCREEN
            END-PERFORM.
+           CLOSE EMP-FILE.
            STOP RUN.
        200-HANDLE-SPECIAL-KEY.
       *> Left Arrow - 2009
@@ -118,12 +120,10 @@
                        AT END
                            DISPLAY SPACE WITH BELL
                            READ EMP-FILE NEXT RECORD
-                   DISPLAY EMPLOYEE-VIEW-SCREEN
                WHEN 2010
                    READ EMP-FILE NEXT RECORD
                        AT END
                            DISPLAY SPACE WITH BELL
                            READ EMP-FILE PREVIOUS RECORD
-                       DISPLAY EMPLOYEE-VIEW-SCREEN
            END-EVALUATE.
        END PROGRAM EMPLOYEE_BROWSE.
