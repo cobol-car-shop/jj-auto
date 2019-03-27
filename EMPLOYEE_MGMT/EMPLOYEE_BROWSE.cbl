@@ -1,7 +1,7 @@
       ******************************************************************
       * Author: Matthew East
       * Date: 03/05/2019
-      * Purpose: Browses the employees in the employee file (UI mock only)
+      * Purpose: Browses the employees in the employee file
       * Tectonics: cobc
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -10,10 +10,22 @@
        CONFIGURATION SECTION.
        SPECIAL-NAMES.
            CONSOLE IS CRT.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT OPTIONAL EMP-FILE
+               ASSIGN TO 'EMPLOYEE.IDX'
+               ORGANIZATION IS INDEXED
+               ACCESS IS SEQUENTIAL
+               RECORD KEY IS IDX-empID
+               ALTERNATE RECORD KEY IS IDX-LNAME.
        DATA DIVISION.
        FILE SECTION.
+       FD EMP-FILE
+           RECORD CONTAINS 161 CHARACTERS.
+           COPY EMP_DEF REPLACING ==:TAG:== BY ==IDX==.
        WORKING-STORAGE SECTION.
            01 WS-KEY PIC X.
+           01 WS-DONE PIC X VALUE "N".
        SCREEN SECTION.
        01 EMPLOYEE-VIEW-SCREEN BLANK SCREEN
            FOREGROUND-COLOR 7 BACKGROUND-COLOR 0.
@@ -22,43 +34,43 @@
              10 VALUE "EMPLOYEE MANAGEMENT" LINE 1 COL 50.
 
            05 VALUE "EMPLOYEE ID #" LINE 3 COL 10.
-           05 VALUE "00001" LINE 3 COL 25.
+           05 D-EMP-ID FROM IDX-EMPID LINE 3 COL 25.
 
            05 VALUE "FIRST NAME" LINE 4 COL 10.
-           05 VALUE "JOHN" LINE 4 COL 25.
+           05 D-EMP-FNAME FROM IDX-FNAME LINE 4 COL 25.
 
            05 VALUE "LAST NAME" LINE 5 COL 10.
-           05 VALUE "DOE" LINE 5 COL 25.
+           05 D-EMP-LNAME FROM IDX-LNAME LINE 5 COL 25.
 
            05 VALUE "SSN" LINE 6 COL 10.
-           05 VALUE "699-45-1234" LINE 6 COL 25.
+           05 D-EMP-SSN FROM IDX-SOCIAL LINE 6 COL 25.
 
            05 VALUE "PHONE #" LINE 7 COL 10.
-           05 VALUE "417-555-1234" LINE 7 COL 25.
+           05 D-EMP-PHONE FROM IDX-PHONE LINE 7 COL 25.
 
            05 VALUE "EMAIL" LINE 8 COL 10.
-           05 VALUE "EXAMPLE@GMAIL.COM" LINE 8 COL 25.
+           05 D-EMP-EML FROM IDX-EMAIL LINE 8 COL 25.
 
            05 VALUE "ADDRESS" LINE 9 COL 10.
-           05 VALUE "123 Example St" LINE 9 COL 25.
+           05 D-EMP-ADDRESS FROM IDX-ADDRESS LINE 9 COL 25.
 
            05 VALUE "CITY" LINE 10 COL 10.
-           05 VALUE "CARTHAGE" LINE 10 COL 25.
+           05 D-EMP-CITY FROM IDX-CITY LINE 10 COL 25.
 
            05 VALUE "STATE" LINE 11 COL 10.
-           05 VALUE "MO" LINE 11 COL 25.
+           05 D-EMP-STATE FROM IDX-STATE LINE 11 COL 25.
 
            05 VALUE "POSTAL CODE" LINE 12 COL 10.
-           05 VALUE "64836" LINE 12 COL 25.
+           05 D-EMP-ZIP FROM IDX-ZIP LINE 12 COL 25.
 
            05 VALUE "WAGE" LINE 13 COL 10.
-           05 VALUE "$   10.00" LINE 13 COL 25.
+           05 D-EMP-WAGE PIC $ZZZ9.99 FROM IDX-WAGE LINE 13 COL 25.
 
            05 VALUE "HOURLY?" LINE 14 COL 10.
-           05 VALUE "YES" LINE 14 COL 25.
+           05 D-EMP-HOURLY FROM IDX-HOURLY LINE 14 COL 25.
 
            05 VALUE "POSITION" LINE 15 COL 10.
-           05 VALUE "ADMINISTRATOR" LINE 15 COL 25.
+           05 D-EMP-POSITION FROM IDX-POSITION LINE 15 COL 25.
 
            05 VALUE "E - EDIT EMPLOYEE" LINE 18 COL 35.
            05 VALUE "D - DELETE EMPLOYEE" LINE 19 COL 35.
@@ -69,24 +81,28 @@
 
        PROCEDURE DIVISION.
        100-MAIN.
+           OPEN INPUT EMP-FILE.
+           READ EMP-FILE.
            DISPLAY EMPLOYEE-VIEW-SCREEN.
       *> The first two environment vars here let me handle arrow keys and the escape key
       *> The third makes the screen flash when I call DISPLAY WITH BELL
            SET ENVIRONMENT "COB_SCREEN_EXCEPTIONS" TO "Y".
            SET ENVIRONMENT "COB_SCREEN_ESC" TO "Y".
            SET ENVIRONMENT "COB_BELL" TO "FLASH".
-           ACCEPT WS-KEY
-               WITH NO ECHO
-               BACKGROUND-COLOR 1
-               AUTO-SKIP.
-           EVALUATE FUNCTION UPPER-CASE(WS-KEY)
-               WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
-               WHEN "E"
-                   CALL "SYSTEM" USING "EMPLOYEE_EDIT.exe"
-               WHEN "C"
-                   CALL "SYSTEM" USING "EMPLOYEE_ADD.exe"
-           END-EVALUATE.
-           ACCEPT WS-KEY AUTO-SKIP.
+
+           PERFORM UNTIL WS-DONE = "Y"
+               ACCEPT WS-KEY
+                   WITH NO ECHO
+                   BACKGROUND-COLOR 1
+                   AUTO-SKIP
+               EVALUATE FUNCTION UPPER-CASE(WS-KEY)
+                   WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
+                   WHEN "E"
+                       CALL "SYSTEM" USING "EMPLOYEE_EDIT.exe"
+                   WHEN "C"
+                       CALL "SYSTEM" USING "EMPLOYEE_ADD.exe"
+               END-EVALUATE
+           END-PERFORM.
            STOP RUN.
        200-HANDLE-SPECIAL-KEY.
       *> Left Arrow - 2009
@@ -97,7 +113,17 @@
       *> See also: https://edoras.sdsu.edu/doc/GNU_Cobol_Programmers_Guide_2.1.pdf pg 345
            EVALUATE COB-CRT-STATUS
                WHEN 2005 STOP RUN
-               WHEN 2009 DISPLAY "TODO - LAST EMPLOYEE" WITH BELL
-               WHEN 2010 DISPLAY "TODO - NEXT EMPLOYEE" WITH BELL
+               WHEN 2009
+                   READ EMP-FILE PREVIOUS RECORD
+                       AT END
+                           DISPLAY SPACE WITH BELL
+                           READ EMP-FILE NEXT RECORD
+                   DISPLAY EMPLOYEE-VIEW-SCREEN
+               WHEN 2010
+                   READ EMP-FILE NEXT RECORD
+                       AT END
+                           DISPLAY SPACE WITH BELL
+                           READ EMP-FILE PREVIOUS RECORD
+                       DISPLAY EMPLOYEE-VIEW-SCREEN
            END-EVALUATE.
        END PROGRAM EMPLOYEE_BROWSE.
