@@ -5,16 +5,12 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CUSTOMER-INFO ASSIGN TO 'C:/Users/Leslie/Documents/Pro
-      -                               'gramming/CIS334/CUSINFO.RPT'
-               ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT INDEX-FILE ASSIGN TO 'C:/Users/Leslie/Documents/Progra
-      -                      'mming/CIS334/CustIndexFile.DAT'
-                             ORGANIZATION IS INDEXED
-                             ACCESS IS SEQUENTIAL
-                             RECORD KEY IS CUST-ID
-                             ALTERNATE KEY IS CUST-LNAME
-                             WITH DUPLICATES.
+           SELECT OPTIONAL CUSTOMER-INFO
+           ASSIGN TO 'CUSTOMER.IDX'
+               ORGANIZATION IS INDEXED
+               ACCESS IS SEQUENTIAL
+               RECORD KEY IS CUST-ID-REC
+               ALTERNATE RECORD KEY IS CUST-LNAME-REC.
 
        DATA DIVISION.
        FILE SECTION.
@@ -31,19 +27,6 @@
            05  CUST-ZIP-REC                     PIC 9(5).
            05  CUST-DST-REC                     PIC X.
 
-       FD  INDEX-FILE.
-       01  INDEX-REC.
-            05  CUST-ID                          PIC 9(5).
-            05  CUST-FNAME                       PIC X(15).
-            05  CUST-LNAME                       PIC X(15).
-            05  CUST-PHONE                       PIC 9(10).
-            05  CUST-EMAIL                       PIC X(35).
-            05  CUST-ADDRS                       PIC X(35).
-            05  CUST-CITY                        PIC X(15).
-            05  CUST-STATE                       PIC XX.
-            05  CUST-ZIP                         PIC 9(5).
-            05  CUST-DST                         PIC X.
-
        WORKING-STORAGE SECTION.
        01  TRANS-REC-IN.
            05  TRANS-ID-IN                      PIC 9(5)  VALUE 00001.
@@ -55,11 +38,13 @@
            05  TRANS-CITY-IN                    PIC X(15).
            05  TRANS-STATE-IN                   PIC XX.
            05  TRANS-ZIP-IN                     PIC 9(5).
+           05  TRANS-DST-IN                     PIC X.
 
 
        01  WORK-AREAS.
            05  MORE-RECS          PIC X(1)
                   VALUE 'Y'.
+           05  MSSG-OUT           PIC X(46).
            05  DATA-OK                         PIC X(1).
            05  WS-DATE.
                10  WS-YEAR                     PIC 9999.
@@ -89,6 +74,24 @@
            05  WHITE                           PIC 9(1)    VALUE 7.
 
        SCREEN SECTION.
+       01  UPD-SCREEN.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR 2
+               BACKGROUND-COLOR 0.
+           05  INPUT-PROMPTS.
+               10 LINE 5 COLUMN 30        VALUE "Update Customer Info".
+               10 LINE 6 COLUMN 30        VALUE "--------------------".
+               10 LINE 8 COLUMN 20
+                         VALUE "Search for Customer by;".
+               10 LINE 12 COLUMN 20       VALUE "Customer ID: ".
+               10 LINE 13 COLUMN 20       VALUE "Or".
+               10 LINE 14 COLUMN 20       VALUE "Customer First Name: ".
+               10 LINE 15 COLUMN 20       VALUE "Customer Last  Name: ".
+           05  INPUT-FIELDS.
+               10 LINE 12 COLUMN 33       PIC 9(5) TO TRANS-ID-IN.
+               10 LINE 14 COLUMN 41       PIC X(15) TO TRANS-FNAME-IN.
+               10 LINE 15 COLUMN 41       PIC X(15) TO TRANS-LNAME-IN.
+
        01  SCREEN-1.
            05  BLANK SCREEN
                FOREGROUND-COLOR 2
@@ -97,7 +100,7 @@
                10  LINE 8 COLUMN 20       VALUE "FIRST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "LAST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "MIDDLE INITIAL: ".
-               10  LINE PLUS 2 COLUMN 20      VALUE "PHONE NUMBER: ".
+               10  LINE PLUS 2 COLUMN 20  VALUE "PHONE NUMBER: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "EMAIL ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STREET ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "CITY: ".
@@ -131,7 +134,12 @@
            05  BLANK SCREEN
                    FOREGROUND-COLOR GREEN
                    BACKGROUND-COLOR BLACK.
-           05  LINE 10 COLUMN 20
+           05  TITLE-BAR
+               FOREGROUND-COLOR 1
+               BACKGROUND-COLOR 0.
+               10  LINE 4 COLUMN 40
+                   PIC X(50) FROM MSSG-OUT.
+           05  LINE 10 COLUMN 54
                    BACKGROUND-COLOR BLACK
                    FOREGROUND-COLOR CYAN
                    HIGHLIGHT
@@ -145,33 +153,45 @@
                    AUTO
                    PIC X(1) TO MORE-RECS.
 
+       01  CLEAR-SCREEN.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR GREEN
+               BACKGROUND-COLOR BLACK.
+
        PROCEDURE DIVISION.
       ****************************************************
       *     All program logic is controlled by           *
       *          100-MAIN-MODULE                         *
       ****************************************************
        100-MAIN-MODULE.
-           OPEN OUTPUT CUSTOMER-INFO
-                       INDEX-FILE
            MOVE FUNCTION CURRENT-DATE TO WS-DATE
            PERFORM UNTIL MORE-RECS = "N" OR "n"
                MOVE "N" TO DATA-OK
-               PERFORM UNTIL DATA-OK = "Y" OR "y"
+               MOVE " " TO MSSG-OUT
+               DISPLAY UPD-SCREEN
+               ACCEPT  UPD-SCREEN
+               IF TRANS-ID-IN > 0
+                 PERFORM 300-CID-RTN
+               ELSE
+                 PERFORM 350-NAME-RTN
+               END-IF
+               IF DATA-OK = 'F'
+                 PERFORM UNTIL DATA-OK = "Y" OR "y"
+                   DISPLAY CLEAR-SCREEN
                    DISPLAY SCREEN-1
                    ACCEPT SCREEN-1
                    DISPLAY SCREEN-2
                    ACCEPT SCREEN-2
-               END-PERFORM
-      *    Check to see if info has been changed before committing.
-               PERFORM 200-UPDATE-RTN
+                 END-PERFORM
+                 PERFORM 200-UPDATE-RTN
+               END-IF
                DISPLAY SCREEN-3
                ACCEPT SCREEN-3
            END-PERFORM
-           CLOSE  CUSTOMER-INFO
-                  INDEX-FILE
            STOP RUN.
 
        200-UPDATE-RTN.
+           OPEN EXTEND CUSTOMER-INFO
            MOVE TRANS-ID-IN TO CUST-NO-OUT
            MOVE TRANS-FNAME-IN TO CUST-FNAME-OUT
            MOVE TRANS-LNAME-IN TO CUST-LNAME-OUT
@@ -182,14 +202,64 @@
            MOVE TRANS-STATE-IN TO CUST-STATE-OUT
            MOVE TRANS-ZIP-IN TO CUST-ZIP-OUT
            MOVE CUST-DST-REC TO CUST-DST-OUT
-           WRITE CUST-REC FROM DETAIL-REC-OUT.
+           REWRITE CUST-REC.
 
-      *    Need to check the output file for duplicate customer info?
+       300-CID-RTN.
+           OPEN INPUT CUSTOMER-INFO
+           MOVE ' ' TO DATA-OK
+           PERFORM UNTIL DATA-OK = 'F' OR 'N'
+             PERFORM 500-READ-RTN
+             IF CUST-ID-REC = TRANS-ID-IN
+               IF CUST-DST-REC = 'N'
+                 PERFORM 400-MOVE-RTN
+                 MOVE 'F' TO DATA-OK
+               ELSE
+                 MOVE 'Customer has been deleted. See Admin for help.'
+                      TO MSSG-OUT
+               END-IF
+             END-IF
+           END-PERFORM
+           MOVE ' ' TO DATA-OK
+           CLOSE CUSTOMER-INFO.
 
-      *  250-REC-INDEX-RTN.
-      *      WRITE INDEX-REC FROM TRANS-REC-IN
-      *            INVALID KEY
-      *              MOVE 'DUPLICATE KEY - NOT PROCESSED' TO MESG-OUT
-      *            NOT INVALID KEY
-      *              MOVE 'SUCCESSFUL PROCESS' TO MESG-OUT
-      *      END-WRITE.
+       350-NAME-RTN.
+           OPEN INPUT CUSTOMER-INFO
+           MOVE ' ' TO DATA-OK
+           PERFORM UNTIL DATA-OK = "F" OR "N"
+             PERFORM 500-READ-RTN
+             EVALUATE TRUE
+               WHEN TRANS-FNAME-IN = CUST-FNAME-REC
+                 EVALUATE TRUE
+                   WHEN TRANS-LNAME-IN = CUST-LNAME-REC
+                     IF CUST-DST-REC = 'N'
+                       PERFORM 400-MOVE-RTN
+                       MOVE "F" TO DATA-OK
+                     ELSE
+                       MOVE
+                        'Customer has been deleted. See Admin for help.'
+                        TO MSSG-OUT
+                     END-IF
+                 END-EVALUATE
+             END-EVALUATE
+           END-PERFORM
+           MOVE ' ' TO DATA-OK
+           CLOSE CUSTOMER-INFO.
+
+       400-MOVE-RTN.
+           MOVE CUST-ID-REC TO TRANS-ID-IN
+           MOVE CUST-FNAME-REC TO TRANS-FNAME-IN
+           MOVE CUST-LNAME-REC TO TRANS-LNAME-IN
+           MOVE CUST-PHONE-REC TO TRANS-PHONE-IN
+           MOVE CUST-EMAIL-REC TO TRANS-EMAIL-IN
+           MOVE CUST-ADDRS-REC TO TRANS-ADDRS-IN
+           MOVE CUST-CITY-REC TO TRANS-CITY-IN
+           MOVE CUST-STATE-REC TO TRANS-STATE-IN
+           MOVE CUST-ZIP-REC TO TRANS-ZIP-IN
+           MOVE CUST-DST-REC TO TRANS-DST-IN.
+
+       500-READ-RTN.
+           READ CUSTOMER-INFO
+             AT END MOVE "N" TO DATA-OK
+           END-READ.
+
+       END PROGRAM CUSUPD.

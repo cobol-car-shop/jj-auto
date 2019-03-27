@@ -17,18 +17,13 @@
                SELECT FIN ASSIGN TO "..\PARTLIST.DAT"
                ORGANIZATION IS INDEXED
                ACCESS IS RANDOM
-               RECORD KEY IS PARTID.
+               RECORD KEY IS REC-PART-ID.
       *-----------------------
        DATA DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
        FILE SECTION.
        FD FIN RECORD CONTAINS 67 CHARACTERS.
-           01 REC-IO.
-               05 PARTID       PIC 9(5).
-               05 PARTNAME     PIC X(15).
-               05 PARTDESC     PIC X(35).
-               05 PARTPRICE    PIC 99999.
-               05 PARTSUPP     PIC 9(5).
+           COPY PART_DEF REPLACING ==:TAG:== BY ==REC==.
 
       *-----------------------
        WORKING-STORAGE SECTION.
@@ -48,8 +43,7 @@
                10 PART-ID-FIELD.
                    20 VALUE "Part ID: "                   LINE 5 COL 25.
                    20 PART-ID PIC 9(5)
-                       FROM WS-PART-ID
-                       TO WS-PART-ID                      LINE 5 COL 34.
+                       FROM WS-PART-ID                    LINE 5 COL 34.
                10 PART-SUPP-FIELD.
                    20 VALUE "Supplier ID: "               LINE 7 COL 21.
                    20 PART-SUPP PIC 9(5)
@@ -67,7 +61,7 @@
                        TO WS-PART-DESC                   LINE 11 COL 34.
                10 PART-PRICE-FIELD.
                    20 VALUE "Part Price: "               LINE 13 COL 22.
-                   20 PART-PRICE PIC 99999
+                   20 PART-PRICE PIC 999V99
                        FROM WS-PART-PRICE
                        TO WS-PART-PRICE                  LINE 13 COL 34.
            05 FOOTER-MESSAGES.
@@ -85,7 +79,7 @@
                10 RESULT-MESSAGE PIC X(40)
                    FROM WS-RESULT-MESSAGE                 LINE 5 COL 25.
                10 NEW-PART-RECORD PIC X(67)
-                   FROM REC-IO TO REC-IO                  LINE 7 COL 10.
+                   FROM REC-PART TO REC-PART              LINE 7 COL 10.
                10 WS-PART-RECORD PIC X(67)
                    FROM WS-PART TO WS-PART                LINE 9 COL 10.
       *-----------------------
@@ -96,7 +90,7 @@
       * The main procedure of the program
       **
 
-            OPEN OUTPUT FIN.
+            OPEN I-O FIN.
 
             PERFORM GET-NEXT-PART-ID.
             DISPLAY PART-ADD-SCREEN.
@@ -115,9 +109,17 @@
 
        EXIT PARAGRAPH.
 
-      ****** UNIMPLEMENTED - NEEDS TO RETURN FIRST AVAILABLE ID
+      ****** Reads through the file until it finds the first open key
        GET-NEXT-PART-ID.
-           MOVE 12345 TO WS-PART-ID.
+           MOVE 00000 TO WS-PART-ID.
+           MOVE 00000 TO REC-PART-ID.
+           PERFORM UNTIL WS-PART-ID > 00000
+               ADD 1 TO REC-PART-ID
+               READ FIN
+                   INVALID KEY
+                       MOVE REC-PART-ID TO WS-PART-ID
+               END-READ
+           END-PERFORM.
        EXIT PARAGRAPH.
 
       * Validate that the data received is okay
@@ -143,8 +145,8 @@
 
       ****** This will commit the part to memory
        FINALIZE-PART-ADD.
-           MOVE WS-PART TO REC-IO.
-           WRITE REC-IO
+           MOVE WS-PART TO REC-PART.
+           WRITE REC-PART
                INVALID KEY
                    MOVE  "ERROR INSERTING RECORD" TO WS-RESULT-MESSAGE
                NOT INVALID KEY

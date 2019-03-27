@@ -1,7 +1,7 @@
 *>****************************************************************
 *> Author: Joseph Warren
 *> Date: 3/6/2019
-*> Purpose: Update an employee in the employee index file
+*> Purpose: Update an employee in the employee index file *DOES NOT WORK*
 *> Tectonics: cobc
 *>*****************************************************************
 IDENTIFICATION DIVISION.

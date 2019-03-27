@@ -5,20 +5,16 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CUSTOMER-INFO ASSIGN TO 'C:/Users/Leslie/Documents/Pro
-      -                               'gramming/CIS334/CUSINFO.RPT'
-               ORGANIZATION IS LINE SEQUENTIAL.
-      *     SELECT INDEX-FILE ASSIGN TO 'C:/Users/Leslie/Documents/Progra
-      *-                      'mming/CIS334/CustIndexFile.DAT'
-      *                       ORGANIZATION IS INDEXED
-      *                       ACCESS IS SEQUENTIAL
-      *                       RECORD KEY IS CUST-ID
-      *                       ALTERNATE KEY IS CUST-LNAME
-      *                       WITH DUPLICATES.
+           SELECT OPTIONAL CUS-FILE
+           ASSIGN TO 'CUSTOMER.IDX'
+               ORGANIZATION IS INDEXED
+               ACCESS IS SEQUENTIAL
+               RECORD KEY IS CUST-ID-REC
+               ALTERNATE RECORD KEY IS CUST-LNAME-REC.
 
        DATA DIVISION.
        FILE SECTION.
-       FD  CUSTOMER-INFO.
+       FD  CUS-FILE.
        01  CUST-REC.
            05  CUST-ID-REC                      PIC 9(5).
            05  CUST-FNAME-REC                   PIC X(15).
@@ -77,7 +73,8 @@
               10 LINE 20 COLUMN 33  PIC 9(5)  TO CUS-ID-IN.
               10 LINE 22 COLUMN 33  PIC X(15) TO CUS-FNAME-IN.
               10 LINE 24 COLUMN 33  PIC X(15) TO CUS-LNAME-IN.
-       01  SCREEN-DISPLAY.
+
+       01  SCREEN-DISPLAY-F.
            05  BLANK SCREEN
                FOREGROUND-COLOR 2
                BACKGROUND-COLOR 0.
@@ -93,7 +90,6 @@
                10  LINE PLUS 2 COLUMN 20  VALUE "STATE ABBREVIATION: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "ZIPCODE: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "DELETION STATUS: ".
-
            05  OUTPUT-FIELDS.
                10  LINE 8      COLUMN 39  PIC 9(5)  FROM CUST-ID-REC.
                10  LINE PLUS 2 COLUMN 39  PIC X(20) FROM CUST-FNAME-REC.
@@ -105,15 +101,93 @@
                10  LINE PLUS 2 COLUMN 39  PIC XX    FROM CUST-STATE-REC.
                10  LINE PLUS 2 COLUMN 39  PIC 9(5)  FROM CUST-ZIP-REC.
                10  LINE PLUS 2 COLUMN 39  PIC X     FROM CUST-DST-REC.
-
            05  INPUT-PROMPTS.
-               10 LINE 30 COLUMN 20       VALUE "Search for another? ".
+               10 LINE 30 COLUMN 20
+               VALUE "Search for another (Y/N)?".
            05  INPUT-FIELDS
                    REVERSE-VIDEO
                    AUTO.
-               10 LINE 30 COLUMN 41       PIC X TO MORE-RECS.
+               10 LINE 30 COLUMN 46       PIC X TO MORE-RECS.
+
+       01  SCREEN-DISPLAY-N.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR 2
+               BACKGROUND-COLOR 0.
+           05  OUTPUT-MESSAGE.
+               10 LINE 8 COLUMN 20 VALUE "No customer was found".
+           05  INPUT-PROMPTS.
+               10 LINE 30 COLUMN 20
+                  VALUE "Search for another (Y/N)?".
+           05  INPUT-FIELDS
+                   REVERSE-VIDEO
+                   AUTO.
+               10 LINE 30 COLUMN 46       PIC X TO MORE-RECS.
+
+       01  CLEAR-SCREEN.
+           05  BLANK SCREEN
+               FOREGROUND-COLOR GREEN
+               BACKGROUND-COLOR BLACK.
+
        PROCEDURE DIVISION.
-       MAIN-PROCEDURE.
-            DISPLAY "Hello world"
-            STOP RUN.
+       100-MAIN-MODULE.
+           MOVE 0 TO CUS-ID-IN
+           DISPLAY SCREEN-SELECT
+           ACCEPT SCREEN-SELECT
+           PERFORM UNTIL MORE-RECS = "N" OR "n"
+             MOVE "Y" TO DATA-OK
+             IF CUS-ID-IN > 00000
+               PERFORM 200-CID-RTN
+             ELSE
+               PERFORM 300-NAME-RTN
+             END-IF
+             IF DATA-OK = "F"
+               DISPLAY CLEAR-SCREEN
+               DISPLAY SCREEN-DISPLAY-F
+               ACCEPT SCREEN-DISPLAY-F
+             ELSE
+               DISPLAY SCREEN-DISPLAY-N
+               ACCEPT  SCREEN-DISPLAY-N
+             END-IF
+           END-PERFORM
+           CLOSE CUS-FILE
+           STOP RUN.
+
+       200-CID-RTN.
+           OPEN INPUT CUS-FILE
+           PERFORM UNTIL DATA-OK = "F" OR "N"
+             PERFORM 400-READ-RTN
+             EVALUATE TRUE
+               WHEN CUS-ID-IN = CUST-ID-REC
+                 IF CUST-DST-REC = "Y"
+                   MOVE "N" TO DATA-OK
+                 ELSE
+                   MOVE "F" TO DATA-OK
+                 END-IF
+             END-EVALUATE
+           END-PERFORM
+           CLOSE CUS-FILE.
+
+       300-NAME-RTN.
+           OPEN INPUT CUS-FILE
+           PERFORM UNTIL DATA-OK = "F" OR "N"
+             PERFORM 400-READ-RTN
+             EVALUATE TRUE
+               WHEN CUS-FNAME-IN = CUST-FNAME-REC
+                 EVALUATE TRUE
+                   WHEN CUS-LNAME-IN = CUST-LNAME-REC
+                     IF CUST-DST-REC = "Y"
+                       MOVE "N" TO DATA-OK
+                     ELSE
+                       MOVE "F" TO DATA-OK
+                     END-IF
+                 END-EVALUATE
+             END-EVALUATE
+           END-PERFORM
+           CLOSE CUS-FILE.
+
+       400-READ-RTN.
+           READ CUS-FILE
+             AT END MOVE "N" TO DATA-OK
+           END-READ.
+
        END PROGRAM CUSVW.
