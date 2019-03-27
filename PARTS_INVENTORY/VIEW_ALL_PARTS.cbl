@@ -189,6 +189,7 @@
                AT END
                    MOVE "BOTTOM" TO DISP-MORE-REC
                    MOVE 'T' TO WS-EOF
+                   PERFORM CLEAR-OUT-EMPTY-ROW
                NOT AT END
                    MOVE "MORE.." TO DISP-MORE-REC
            END-READ.
@@ -201,7 +202,7 @@
            *> Clear out the row from last round
            MOVE SPACES TO WS-PART-ROW(ROW-IDX).
            *> Put an XX in any row that doesn't have data
-           MOVE 'XX' TO WS-USER-INPUT(ROW-IDX).
+           MOVE 'X' TO WS-USER-INPUT(ROW-IDX).
 
        END-PARAGAPH.
 
