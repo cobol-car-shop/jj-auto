@@ -25,7 +25,7 @@
            05  CUST-CITY-REC                    PIC X(15).
            05  CUST-STATE-REC                   PIC XX.
            05  CUST-ZIP-REC                     PIC 9(5).
-           05  CUST-DST-REC                      PIC X.
+           05  CUST-DST-REC                     PIC X.
 
        WORKING-STORAGE SECTION.
        01  TRANS-REC-IN.
@@ -169,10 +169,10 @@
                    DISPLAY SCREEN-2
                    ACCEPT SCREEN-2
                END-PERFORM
-
                PERFORM 200-ADD-RTN
                DISPLAY SCREEN-3
                ACCEPT SCREEN-3
+               PERFORM 450-CLRFLD-RTN
            END-PERFORM
            CLOSE CUS-FILE
            STOP RUN.
@@ -190,5 +190,16 @@
            MOVE TRANS-DST-IN TO CUST-DST-REC
            WRITE CUST-REC
            ADD 1 TO TRANS-ID-IN.
+
+       450-CLRFLD-RTN.
+           MOVE " " TO TRANS-FNAME-IN
+           MOVE " " TO TRANS-LNAME-IN
+           MOVE 0000000000 TO TRANS-PHONE-IN
+           MOVE " " TO TRANS-EMAIL-IN
+           MOVE " " TO TRANS-ADDRS-IN
+           MOVE " " TO TRANS-CITY-IN
+           MOVE " " TO TRANS-STATE-IN
+           MOVE 0 TO TRANS-ZIP-IN
+           MOVE "Y" TO TRANS-DST-IN.
 
        END PROGRAM CUSADD.
