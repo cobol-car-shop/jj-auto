@@ -13,7 +13,7 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT OPTIONAL EMP-FILE
-               ASSIGN TO 'EMPLOYEE.IDX'
+               ASSIGN TO '../INDEXES/EMPLOYEE.IDX'
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS IDX-empID
