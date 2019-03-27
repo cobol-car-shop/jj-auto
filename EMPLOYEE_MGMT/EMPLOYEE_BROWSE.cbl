@@ -26,12 +26,13 @@
        WORKING-STORAGE SECTION.
            01 WS-KEY PIC X.
            01 WS-DONE PIC X VALUE "N".
+           01 WS-READY PIC X VALUE "N".
        SCREEN SECTION.
        01 EMPLOYEE-VIEW-SCREEN BLANK SCREEN
            FOREGROUND-COLOR 7 BACKGROUND-COLOR 0.
            05 TITLE-BAR FOREGROUND-COLOR 7 BACKGROUND-COLOR 1.
              10 VALUE SPACES PIC X(120).
-             10 VALUE "EMPLOYEE MANAGEMENT" LINE 1 COL 50.
+             10 VALUE "EMPLOYEE MANAGEMENT - BROWSE" LINE 1 COL 50.
 
            05 VALUE "EMPLOYEE ID #" LINE 3 COL 10.
            05 D-EMP-ID FROM IDX-EMPID LINE 3 COL 25.
@@ -82,7 +83,15 @@
        PROCEDURE DIVISION.
        100-MAIN.
            OPEN INPUT EMP-FILE.
-           READ EMP-FILE.
+           PERFORM UNTIL WS-READY = "Y"
+           READ EMP-FILE
+               NOT AT END
+                   MOVE "Y" TO WS-READY
+               AT END
+                   CLOSE EMP-FILE
+                   CALL "SYSTEM" USING "EMPLOYEE_ADD"
+                   OPEN INPUT EMP-FILE
+           END-PERFORM.
            DISPLAY EMPLOYEE-VIEW-SCREEN.
       *> The first two environment vars here let me handle arrow keys and the escape key
       *> The third makes the screen flash when I call DISPLAY WITH BELL
@@ -100,9 +109,14 @@
                    WHEN "E"
                        CALL "SYSTEM" USING "EMPLOYEE_EDIT"
                    WHEN "C"
+                       CLOSE EMP-FILE
                        CALL "SYSTEM" USING "EMPLOYEE_ADD"
+                       DISPLAY SPACES BLANK SCREEN
+                       OPEN INPUT EMP-FILE
+                       START EMP-FILE KEY IS EQUAL TO IDX-EMPID
+                       READ EMP-FILE
                END-EVALUATE
-               DISPLAY EMPLOYEE-VIEW-SCREEN
+              DISPLAY EMPLOYEE-VIEW-SCREEN
            END-PERFORM.
            CLOSE EMP-FILE.
            STOP RUN.
