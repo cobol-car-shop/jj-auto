@@ -22,7 +22,7 @@
        01 WS-USER-RESPONSE           PIC 99.
        01 END-LOOP                PIC X VALUE 'F'.
        01 WS-ERROR-MESSAGE        PIC X(20).
-       88 VALID-MENU-OPTION VALUES ARE 01 THRU 01.
+      *88 VALID-MENU-OPTION VALUES ARE 01 THRU 01.
        SCREEN SECTION.
       *-----------------------
        01 PARTS-HOME-SCREEN.
@@ -35,10 +35,10 @@
            05 MENU-OPTIONS.
                10 OPTION-ONE.
                    20 VALUE "1."                          LINE 4 COL 11.
-                   20 VALUE "LOOKUP PART NUMBER"          LINE 4 COL 15.
+                   20 VALUE "EDIT PART NUMBER"          LINE 4 COL 15.
                10 OPTION-TWO.
                    20 VALUE "2."                          LINE 5 COL 11.
-                   20 VALUE "LOOKUP MAINTENANCE ORDER"    LINE 5 COL 15.
+      *             20 VALUE "LOOKUP MAINTENANCE ORDER"    LINE 5 COL 15.
                10 OPTION-THREE.
                    20 VALUE "3."                          LINE 6 COL 11.
                    20 VALUE "VIEW ALL PARTS"              LINE 6 COL 15.

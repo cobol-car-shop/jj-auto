@@ -1,1 +1,4 @@
 bin/
+*.IDX
+*.IDX.1
+~$JJAuto-ScreenOptions.xlsx
