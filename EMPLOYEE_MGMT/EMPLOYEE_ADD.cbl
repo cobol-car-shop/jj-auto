@@ -14,7 +14,7 @@
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS IDX-empID
-               ALTERNATE RECORD KEY IS IDX-LNAME.
+               ALTERNATE RECORD KEY IS IDX-LNAME WITH DUPLICATES.
        DATA DIVISION.
        FILE SECTION.
        FD EMP-FILE
@@ -24,7 +24,7 @@
            01 WS-FNAME PIC X(15).
            01 WS-LNAME PIC X(15).
            01 WS-SSN PIC 9(9).
-           01 WS-PHONE PIC X(13).
+           01 WS-PHONE PIC X(10).
            01 WS-EMAIL PIC X(25).
            01 WS-ADDRESS PIC X(25).
            01 WS-CITY PIC X(25).

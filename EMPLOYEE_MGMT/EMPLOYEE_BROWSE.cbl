@@ -17,7 +17,7 @@
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS IDX-empID
-               ALTERNATE RECORD KEY IS IDX-LNAME.
+               ALTERNATE RECORD KEY IS IDX-LNAME WITH DUPLICATES.
        DATA DIVISION.
        FILE SECTION.
        FD EMP-FILE
@@ -27,6 +27,9 @@
            01 WS-KEY PIC X.
            01 WS-DONE PIC X VALUE "N".
            01 WS-READY PIC X VALUE "N".
+           01 WS-EDIT-CMD.
+              05 PIC X(14) VALUE "EMPLOYEE_EDIT ".
+              05 EDIT-ID PIC 9(5).
        SCREEN SECTION.
        01 EMPLOYEE-VIEW-SCREEN BLANK SCREEN
            FOREGROUND-COLOR 7 BACKGROUND-COLOR 0.
@@ -47,7 +50,12 @@
            05 D-EMP-SSN FROM IDX-SOCIAL LINE 6 COL 25.
 
            05 VALUE "PHONE #" LINE 7 COL 10.
-           05 D-EMP-PHONE FROM IDX-PHONE LINE 7 COL 25.
+      *>     05 D-EMP-PHONE FROM IDX-PHONE LINE 7 COL 25.
+           05 D-EMP-PHONE-AREA FROM IDX-PHONE(1:3) LINE 7 COL 25.
+           05 VALUE "-" LINE 7 COL 28.
+           05 D-EMP-PHONE-EXCH FROM IDX-PHONE(4:3) LINE 7 COL 29.
+           05 VALUE "-" LINE 7 COL 32.
+           05 D-EMP-PHONE-LAST FROM IDX-PHONE(7:4) LINE 7 COL 33.
 
            05 VALUE "EMAIL" LINE 8 COL 10.
            05 D-EMP-EML FROM IDX-EMAIL LINE 8 COL 25.
@@ -65,7 +73,7 @@
            05 D-EMP-ZIP FROM IDX-ZIP LINE 12 COL 25.
 
            05 VALUE "WAGE" LINE 13 COL 10.
-           05 D-EMP-WAGE PIC $ZZZ9.99 FROM IDX-WAGE LINE 13 COL 25.
+           05 D-EMP-WAGE PIC $ZZZZ9.99 FROM IDX-WAGE LINE 13 COL 25.
 
            05 VALUE "HOURLY?" LINE 14 COL 10.
            05 D-EMP-HOURLY FROM IDX-HOURLY LINE 14 COL 25.
@@ -107,7 +115,13 @@
                EVALUATE FUNCTION UPPER-CASE(WS-KEY)
                    WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
                    WHEN "E"
-                       CALL "SYSTEM" USING "EMPLOYEE_EDIT"
+                       CLOSE EMP-FILE
+                       MOVE IDX-EMPID TO EDIT-ID
+                       CALL "SYSTEM" USING WS-EDIT-CMD
+                       DISPLAY SPACES BLANK SCREEN
+                       OPEN INPUT EMP-FILE
+                       START EMP-FILE KEY IS EQUAL TO IDX-EMPID
+                       READ EMP-FILE
                    WHEN "C"
                        CLOSE EMP-FILE
                        CALL "SYSTEM" USING "EMPLOYEE_ADD"
@@ -128,7 +142,9 @@
       *> ESC - 2005
       *> See also: https://edoras.sdsu.edu/doc/GNU_Cobol_Programmers_Guide_2.1.pdf pg 345
            EVALUATE COB-CRT-STATUS
-               WHEN 2005 STOP RUN
+               WHEN 2005
+                   CLOSE EMP-FILE
+                   STOP RUN
                WHEN 2009
                    READ EMP-FILE PREVIOUS RECORD
                        AT END
