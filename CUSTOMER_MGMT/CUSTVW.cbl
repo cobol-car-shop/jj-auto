@@ -58,21 +58,20 @@
                BACKGROUND-COLOR BLACK
                FOREGROUND-COLOR GREEN.
            05 INPUT-PROMPTS.
-              10 LINE 18 COLUMN 20
-                 VALUE "Please enter Customer ID or First and Last Name"
-                 FOREGROUND-COLOR BLUE.
-              10 LINE 20 COLUMN 20
-                   VALUE "Customer ID: ".
-              10 LINE 22 COLUMN 20
-                   VALUE "First Name: ".
-              10 LINE 24 COLUMN 20
-                   VALUE "Last Name: ".
+               10 LINE 5 COLUMN 35        VALUE "View Customer Info".
+               10 LINE 6 COLUMN 35        VALUE "-----------------".
+               10 LINE 8 COLUMN 20
+                         VALUE "Search for Customer by;".
+               10 LINE 10 COLUMN 20       VALUE "Customer ID: ".
+               10 LINE 11 COLUMN 20       VALUE "Or".
+               10 LINE 12 COLUMN 20       VALUE "Customer First Name: ".
+               10 LINE 13 COLUMN 20       VALUE "Customer Last  Name: ".
            05 INPUT-FIELDS
-                  REVERSE-VIDEO
-                  AUTO.
-              10 LINE 20 COLUMN 33  PIC 9(5)  TO CUS-ID-IN.
-              10 LINE 22 COLUMN 33  PIC X(15) TO CUS-FNAME-IN.
-              10 LINE 24 COLUMN 33  PIC X(15) TO CUS-LNAME-IN.
+                 REVERSE-VIDEO
+                 AUTO.
+              10 LINE 10 COLUMN 33  PIC 9(5)  TO CUS-ID-IN.
+              10 LINE 12 COLUMN 41  PIC X(15) TO CUS-FNAME-IN.
+              10 LINE 13 COLUMN 41  PIC X(15) TO CUS-LNAME-IN.
 
        01  SCREEN-DISPLAY-F.
            05  BLANK SCREEN
@@ -102,11 +101,11 @@
                10  LINE PLUS 2 COLUMN 39  PIC 9(5)  FROM CUST-ZIP-REC.
                10  LINE PLUS 2 COLUMN 39  PIC X     FROM CUST-DST-REC.
            05  INPUT-PROMPTS.
-               10 LINE 30 COLUMN 20
-               VALUE "Search for another (Y/N)?".
+               10  LINE 30 COLUMN 20
+                   VALUE "Search for another (Y/N)?".
            05  INPUT-FIELDS
-                   REVERSE-VIDEO
-                   AUTO.
+                 REVERSE-VIDEO
+                 AUTO.
                10 LINE 30 COLUMN 46       PIC X TO MORE-RECS.
 
        01  SCREEN-DISPLAY-N.
@@ -119,8 +118,8 @@
                10 LINE 30 COLUMN 20
                   VALUE "Search for another (Y/N)?".
            05  INPUT-FIELDS
-                   REVERSE-VIDEO
-                   AUTO.
+                REVERSE-VIDEO
+                AUTO.
                10 LINE 30 COLUMN 46       PIC X TO MORE-RECS.
 
        01  CLEAR-SCREEN.
@@ -130,10 +129,10 @@
 
        PROCEDURE DIVISION.
        100-MAIN-MODULE.
-           MOVE 0 TO CUS-ID-IN
-           DISPLAY SCREEN-SELECT
-           ACCEPT SCREEN-SELECT
            PERFORM UNTIL MORE-RECS = "N" OR "n"
+             DISPLAY CLEAR-SCREEN
+             DISPLAY SCREEN-SELECT
+             ACCEPT SCREEN-SELECT
              MOVE "Y" TO DATA-OK
              IF CUS-ID-IN > 00000
                PERFORM 200-CID-RTN
@@ -145,9 +144,11 @@
                DISPLAY SCREEN-DISPLAY-F
                ACCEPT SCREEN-DISPLAY-F
              ELSE
+               DISPLAY CLEAR-SCREEN
                DISPLAY SCREEN-DISPLAY-N
                ACCEPT  SCREEN-DISPLAY-N
              END-IF
+             PERFORM 450-CLRFLD-RTN
            END-PERFORM
            CLOSE CUS-FILE
            STOP RUN.
@@ -189,5 +190,10 @@
            READ CUS-FILE
              AT END MOVE "N" TO DATA-OK
            END-READ.
+
+       450-CLRFLD-RTN.
+           MOVE 0 TO CUS-ID-IN
+           MOVE SPACES TO CUS-FNAME-IN
+           MOVE SPACE TO CUS-LNAME-IN.
 
        END PROGRAM CUSVW.

@@ -13,11 +13,11 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT OPTIONAL EMP-FILE
-               ASSIGN TO 'EMPLOYEE.IDX'
+               ASSIGN TO '../INDEXES/EMPLOYEE.IDX'
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS IDX-empID
-               ALTERNATE RECORD KEY IS IDX-LNAME.
+               ALTERNATE RECORD KEY IS IDX-LNAME WITH DUPLICATES.
        DATA DIVISION.
        FILE SECTION.
        FD EMP-FILE
@@ -26,12 +26,16 @@
        WORKING-STORAGE SECTION.
            01 WS-KEY PIC X.
            01 WS-DONE PIC X VALUE "N".
+           01 WS-READY PIC X VALUE "N".
+           01 WS-EDIT-CMD.
+              05 PIC X(14) VALUE "EMPLOYEE_EDIT ".
+              05 EDIT-ID PIC 9(5).
        SCREEN SECTION.
        01 EMPLOYEE-VIEW-SCREEN BLANK SCREEN
            FOREGROUND-COLOR 7 BACKGROUND-COLOR 0.
            05 TITLE-BAR FOREGROUND-COLOR 7 BACKGROUND-COLOR 1.
              10 VALUE SPACES PIC X(120).
-             10 VALUE "EMPLOYEE MANAGEMENT" LINE 1 COL 50.
+             10 VALUE "EMPLOYEE MANAGEMENT - BROWSE" LINE 1 COL 50.
 
            05 VALUE "EMPLOYEE ID #" LINE 3 COL 10.
            05 D-EMP-ID FROM IDX-EMPID LINE 3 COL 25.
@@ -46,7 +50,12 @@
            05 D-EMP-SSN FROM IDX-SOCIAL LINE 6 COL 25.
 
            05 VALUE "PHONE #" LINE 7 COL 10.
-           05 D-EMP-PHONE FROM IDX-PHONE LINE 7 COL 25.
+      *>     05 D-EMP-PHONE FROM IDX-PHONE LINE 7 COL 25.
+           05 D-EMP-PHONE-AREA FROM IDX-PHONE(1:3) LINE 7 COL 25.
+           05 VALUE "-" LINE 7 COL 28.
+           05 D-EMP-PHONE-EXCH FROM IDX-PHONE(4:3) LINE 7 COL 29.
+           05 VALUE "-" LINE 7 COL 32.
+           05 D-EMP-PHONE-LAST FROM IDX-PHONE(7:4) LINE 7 COL 33.
 
            05 VALUE "EMAIL" LINE 8 COL 10.
            05 D-EMP-EML FROM IDX-EMAIL LINE 8 COL 25.
@@ -64,7 +73,7 @@
            05 D-EMP-ZIP FROM IDX-ZIP LINE 12 COL 25.
 
            05 VALUE "WAGE" LINE 13 COL 10.
-           05 D-EMP-WAGE PIC $ZZZ9.99 FROM IDX-WAGE LINE 13 COL 25.
+           05 D-EMP-WAGE PIC $ZZZZ9.99 FROM IDX-WAGE LINE 13 COL 25.
 
            05 VALUE "HOURLY?" LINE 14 COL 10.
            05 D-EMP-HOURLY FROM IDX-HOURLY LINE 14 COL 25.
@@ -82,7 +91,15 @@
        PROCEDURE DIVISION.
        100-MAIN.
            OPEN INPUT EMP-FILE.
-           READ EMP-FILE.
+           PERFORM UNTIL WS-READY = "Y"
+           READ EMP-FILE
+               NOT AT END
+                   MOVE "Y" TO WS-READY
+               AT END
+                   CLOSE EMP-FILE
+                   CALL "SYSTEM" USING "EMPLOYEE_ADD"
+                   OPEN INPUT EMP-FILE
+           END-PERFORM.
            DISPLAY EMPLOYEE-VIEW-SCREEN.
       *> The first two environment vars here let me handle arrow keys and the escape key
       *> The third makes the screen flash when I call DISPLAY WITH BELL
@@ -98,11 +115,22 @@
                EVALUATE FUNCTION UPPER-CASE(WS-KEY)
                    WHEN SPACE PERFORM 200-HANDLE-SPECIAL-KEY
                    WHEN "E"
-                       CALL "SYSTEM" USING "EMPLOYEE_EDIT"
+                       CLOSE EMP-FILE
+                       MOVE IDX-EMPID TO EDIT-ID
+                       CALL "SYSTEM" USING WS-EDIT-CMD
+                       DISPLAY SPACES BLANK SCREEN
+                       OPEN INPUT EMP-FILE
+                       START EMP-FILE KEY IS EQUAL TO IDX-EMPID
+                       READ EMP-FILE
                    WHEN "C"
+                       CLOSE EMP-FILE
                        CALL "SYSTEM" USING "EMPLOYEE_ADD"
+                       DISPLAY SPACES BLANK SCREEN
+                       OPEN INPUT EMP-FILE
+                       START EMP-FILE KEY IS EQUAL TO IDX-EMPID
+                       READ EMP-FILE
                END-EVALUATE
-               DISPLAY EMPLOYEE-VIEW-SCREEN
+              DISPLAY EMPLOYEE-VIEW-SCREEN
            END-PERFORM.
            CLOSE EMP-FILE.
            STOP RUN.
@@ -114,7 +142,9 @@
       *> ESC - 2005
       *> See also: https://edoras.sdsu.edu/doc/GNU_Cobol_Programmers_Guide_2.1.pdf pg 345
            EVALUATE COB-CRT-STATUS
-               WHEN 2005 STOP RUN
+               WHEN 2005
+                   CLOSE EMP-FILE
+                   STOP RUN
                WHEN 2009
                    READ EMP-FILE PREVIOUS RECORD
                        AT END
