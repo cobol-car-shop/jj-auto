@@ -29,7 +29,7 @@
          01 ACCOUNT-CHECK PIC A(3) VALUE 'INC'.
          01 TEMP-PASSWORD PIC X(30).
          01 PASS-LENGTH PIC 9(2).
-         01 TEMP-HASH PIC X(128).
+         01 SHA3-OUTPUT PIC X(128).
          01 TALLY-VAL PIC 9(10).
          SCREEN SECTION.
          01 AUTHSCREEN.
@@ -51,6 +51,7 @@
             PERFORM UNTIL PRESS-ANY-KEY ='END'
             PERFORM 200-READ-DATA
             END-PERFORM
+            CLOSE ACCOUNT-FILE
             STOP RUN.
        200-READ-DATA.
            DISPLAY AUTHSCREEN
@@ -72,8 +73,10 @@
            IF ACCOUNT-CHECK = 'COR'
                THEN
                MOVE PASSWORD-IN TO TEMP-PASSWORD
+               *>fix this so hashing works
                PERFORM 400-HASH-PASS
-                IF TEMP-HASH = HASH
+                 IF SHA3-OUTPUT = HASH
+                    *>IF HASH = HASH
                    THEN
                      MOVE 'COR' TO ACCOUNT-CHECK
                      MOVE 'END' TO PRESS-ANY-KEY
@@ -86,17 +89,15 @@
                      END-IF
                      ELSE
                     DISPLAY ERROR-SCREEN
-                END-IF
-                                 CLOSE ACCOUNT-FILE.
+                END-IF.
         400-HASH-PASS.
-            INITIALIZE TEMP-HASH
+            INITIALIZE SHA3-OUTPUT
             INSPECT FUNCTION REVERSE (TEMP-PASSWORD)
             TALLYING TALLY-VAL FOR LEADING SPACES
             COMPUTE PASS-LENGTH = LENGTH OF TEMP-PASSWORD - TALLY-VAL
-
             CALL "SHA3-512" USING TEMP-PASSWORD
                           PASS-LENGTH
-                          TEMP-HASH
+                          SHA3-OUTPUT
             END-CALL.
 
         500-CALL-ERROR.
