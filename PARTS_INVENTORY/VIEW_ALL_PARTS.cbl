@@ -217,15 +217,12 @@
                *> Parse the user input for an action to complete
                EVALUATE WS-USER-INPUT(ROW-IDX)
                    WHEN 'D'
-                       MOVE 'DELETE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'd'
                        MOVE 'DELETE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'U'
-                       MOVE 'UPDATE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'u'
                        MOVE 'UPDATE_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'A'
-                       MOVE 'ADD_PART' TO WS-PROGRAM-TO-CALL
                    WHEN 'a'
                        MOVE 'ADD_PART' TO WS-PROGRAM-TO-CALL
                END-EVALUATE
@@ -241,8 +238,8 @@
                *> Generate the appropriate confirmation message
                EVALUATE LS-RESPONSE
                    WHEN 01
-                       MOVE "OPERATION SUCCESSFUL, PRESS ENTER TO CON
-      -                "TINUE. " TO WS-RESPONSE-TEXT
+                       MOVE "OPERATION SUCCESSFUL, PRESS ENTER TO CONTIN
+      -                "UE. " TO WS-RESPONSE-TEXT
                    WHEN 99
                        MOVE "OPERATION FAILED, PRESS ENTER TO CONTINUE."
                        TO WS-RESPONSE-TEXT
