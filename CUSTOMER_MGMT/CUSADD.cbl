@@ -6,7 +6,7 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT OPTIONAL CUS-FILE
-           ASSIGN TO 'CUSTOMER.IDX'
+           ASSIGN TO 'CUSTOMER.NDX'
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS CUST-ID-REC
@@ -44,22 +44,11 @@
            05  MORE-RECS          PIC X(1)
                   VALUE 'Y'.
            05  DATA-OK                         PIC X(1).
+           05  MSG-OUT                         PIC X(50).
            05  WS-DATE.
                10  WS-YEAR                     PIC 9999.
                10  WS-MONTH                    PIC 99.
                10  WS-DAY                      PIC 99.
-
-       01  DETAIL-REC-OUT.
-           05  CUST-NO-OUT                     PIC 9(5).
-           05  CUST-FNAME-OUT                  PIC X(15).
-           05  CUST-LNAME-OUT                  PIC X(15).
-           05  CUST-PHONE-OUT                  PIC 9(10).
-           05  CUST-EMAIL-OUT                  PIC X(35).
-           05  CUST-ADDR-OUT                   PIC X(35).
-           05  CUST-CITY-OUT                   PIC X(15).
-           05  CUST-STATE-OUT                  PIC XX.
-           05  CUST-ZIP-OUT                    PIC 9(5).
-           05  CUST-DST-OUT                    PIC X.
 
        01  COLOR-LIST.
            05  BLACK                           PIC 9(1)    VALUE 0.
@@ -118,6 +107,10 @@
            05  BLANK SCREEN
                    FOREGROUND-COLOR GREEN
                    BACKGROUND-COLOR BLACK.
+           05 LINE 5 COLUMN 20
+                   BACKGROUND-COLOR BLACK
+                   FOREGROUND-COLOR CYAN
+                   PIC X(50) FROM MSG-OUT.
            05  LINE 10 COLUMN 20
                    BACKGROUND-COLOR BLACK
                    FOREGROUND-COLOR CYAN
@@ -143,7 +136,7 @@
       *          100-MAIN-MODULE                         *
       ****************************************************
        100-MAIN-MODULE.
-           OPEN INPUT CUS-FILE
+           OPEN I-O CUS-FILE
            MOVE FUNCTION CURRENT-DATE TO WS-DATE
            PERFORM UNTIL MORE-RECS = "N"
              READ CUS-FILE
@@ -189,6 +182,9 @@
            MOVE TRANS-ZIP-IN TO CUST-ZIP-REC
            MOVE TRANS-DST-IN TO CUST-DST-REC
            WRITE CUST-REC
+             INVALID KEY MOVE 'INVALID KEY - NOT PROCESSED' TO MSG-OUT
+             NOT INVALID KEY MOVE 'SUCCESSFULLY PROCESSED' TO MSG-OUT
+           END-WRITE
            ADD 1 TO TRANS-ID-IN.
 
        450-CLRFLD-RTN.
