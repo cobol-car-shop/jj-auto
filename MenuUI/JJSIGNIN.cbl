@@ -51,7 +51,6 @@
             PERFORM UNTIL PRESS-ANY-KEY ='END'
             PERFORM 200-READ-DATA
             END-PERFORM
-            CLOSE ACCOUNT-FILE
             STOP RUN.
        200-READ-DATA.
            DISPLAY AUTHSCREEN
@@ -81,6 +80,7 @@
                      MOVE 'COR' TO ACCOUNT-CHECK
                      MOVE 'END' TO PRESS-ANY-KEY
                      MOVE FUNCTION  UPPER-CASE (PERMISSION) TO PERMISSION-IN
+                     CLOSE ACCOUNT-FILE
                      CALL "JJUI" USING USERNAME-IN
                                        PERMISSION-IN
                      END-CALL
