@@ -4,3 +4,5 @@
            05 :TAG:-PART-DESC     PIC X(35).
            05 :TAG:-PART-PRICE    PIC 999V99.
            05 :TAG:-PART-SUPP     PIC 9(5).
+           05 :TAG:-PART-QTY      PIC 999.
+           05 :TAG:-PART-ON-HAND  PIC 99.

@@ -24,7 +24,7 @@
        DATA DIVISION.
       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
        FILE SECTION.
-       FD IDXFILE RECORD CONTAINS 67 CHARACTERS.
+       FD IDXFILE RECORD CONTAINS 70 CHARACTERS.
            COPY PART_DEF REPLACING ==:TAG:== BY ==REC==.
       *-----------------------
        WORKING-STORAGE SECTION.
