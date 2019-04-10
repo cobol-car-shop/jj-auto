@@ -35,16 +35,7 @@
            05 MENU-OPTIONS.
                10 OPTION-ONE.
                    20 VALUE "1."                          LINE 4 COL 11.
-                   20 VALUE "EDIT PART NUMBER"          LINE 4 COL 15.
-               10 OPTION-TWO.
-                   20 VALUE "2."                          LINE 5 COL 11.
-      *             20 VALUE "LOOKUP MAINTENANCE ORDER"    LINE 5 COL 15.
-               10 OPTION-THREE.
-                   20 VALUE "3."                          LINE 6 COL 11.
-                   20 VALUE "VIEW ALL PARTS"              LINE 6 COL 15.
-               10 OPTION-FOUR.
-                   20 VALUE "4."                          LINE 7 COL 11.
-                   20 VALUE "ADD NEW PART"                LINE 7 COL 15.
+                   20 VALUE "View All Parts"          LINE 4 COL 15.
                10 OPTION-TEN.
                    20 VALUE "10."                        LINE 13 COL 11.
                    20 VALUE "EXIT PROGRAM"               LINE 13 COL 15.
@@ -82,8 +73,6 @@
            EVALUATE TRUE
                WHEN WS-USER-RESPONSE = 01
                    MOVE "VIEW_ALL_PARTS" TO WS-PROGRAM-TO-CALL
-               WHEN WS-USER-RESPONSE = 02
-                   MOVE 'CHANGE_PARTS_QTY' TO WS-PROGRAM-TO-CALL
                WHEN WS-USER-RESPONSE = 10
                    MOVE "T" TO END-LOOP
                WHEN OTHER
