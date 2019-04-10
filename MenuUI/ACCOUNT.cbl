@@ -28,6 +28,7 @@
        01 TEMP-PERMISSION PIC X(5).
        01 PASS-LENGTH PIC 9(2).
        01 TALLY-VAL PIC 9(10).
+           LINKAGE SECTION.
            SCREEN SECTION.
          01 ENTRYSCREEN.
             05 FOREGROUND-COLOR 07
@@ -46,7 +47,7 @@
                ERASE SCREEN.
                10 LINE 7 COLUMN 1 VALUE "BRO There is an error".
        PROCEDURE DIVISION.
-       100-HASH.
+       100-MAIN-PROCEDURE.
            OPEN EXTEND ACCOUNT-FILE
            INITIALIZE SHA3-OUTPUT
            PERFORM 200-GATHER-DATA

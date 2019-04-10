@@ -6,11 +6,11 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT OPTIONAL CUS-FILE
-           ASSIGN TO 'CUSTOMER.IDX'
+           ASSIGN TO 'CUSTOMER.NDX'
                ORGANIZATION IS INDEXED
                ACCESS IS SEQUENTIAL
                RECORD KEY IS CUST-ID-REC
-               ALTERNATE RECORD KEY IS CUST-LNAME-REC.
+               ALTERNATE RECORD KEY IS CUST-LNAME-REC WITH DUPLICATES.
 
        DATA DIVISION.
        FILE SECTION.
@@ -77,29 +77,31 @@
            05  BLANK SCREEN
                FOREGROUND-COLOR 2
                BACKGROUND-COLOR 0.
+           05  TITLE-BAR
+               FOREGROUND-COLOR 1
+               BACKGROUND-COLOR 0.
+               10  LINE 4 COLUMN 40
+                   VALUE "Customer Management: View Customer".
            05  OUTPUT-PROMPTS.
                10  LINE 8 COLUMN 20       VALUE "CUSTOMER ID: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "FIRST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "LAST NAME: ".
-               10  LINE PLUS 2 COLUMN 20  VALUE "MIDDLE INITIAL: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "PHONE NUMBER: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "EMAIL ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STREET ADDRESS: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "CITY: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STATE ABBREVIATION: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "ZIPCODE: ".
-               10  LINE PLUS 2 COLUMN 20  VALUE "DELETION STATUS: ".
            05  OUTPUT-FIELDS.
-               10  LINE 8      COLUMN 39  PIC 9(5)  FROM CUST-ID-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X(20) FROM CUST-FNAME-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X(20) FROM CUST-LNAME-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC 9(10) FROM CUST-PHONE-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X(35) FROM CUST-EMAIL-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X(35) FROM CUST-ADDRS-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X(15) FROM CUST-CITY-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC XX    FROM CUST-STATE-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC 9(5)  FROM CUST-ZIP-REC.
-               10  LINE PLUS 2 COLUMN 39  PIC X     FROM CUST-DST-REC.
+               10  LINE 8      COLUMN 40  PIC 9(5)  FROM CUST-ID-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC X(20) FROM CUST-FNAME-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC X(20) FROM CUST-LNAME-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC 9(10) FROM CUST-PHONE-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC X(35) FROM CUST-EMAIL-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC X(35) FROM CUST-ADDRS-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC X(15) FROM CUST-CITY-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC XX    FROM CUST-STATE-REC.
+               10  LINE PLUS 2 COLUMN 40  PIC 9(5)  FROM CUST-ZIP-REC.
            05  INPUT-PROMPTS.
                10  LINE 30 COLUMN 20
                    VALUE "Search for another (Y/N)?".
@@ -150,7 +152,6 @@
              END-IF
              PERFORM 450-CLRFLD-RTN
            END-PERFORM
-           CLOSE CUS-FILE
            STOP RUN.
 
        200-CID-RTN.

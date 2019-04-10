@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID.
-           CUSUPD.
+           CUSDEL.
       *    Programmer: Jonathan Walker
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -86,7 +86,7 @@
                FOREGROUND-COLOR 2
                BACKGROUND-COLOR 0.
            05  INPUT-PROMPTS.
-               10 LINE 5 COLUMN 30        VALUE "Update Customer Info".
+               10 LINE 5 COLUMN 30        VALUE "Delete Customer Info".
                10 LINE 6 COLUMN 30        VALUE "--------------------".
                10 LINE 8 COLUMN 20
                          VALUE "Search for Customer by;".
@@ -109,7 +109,7 @@
                FOREGROUND-COLOR 1
                BACKGROUND-COLOR 0.
                10  LINE 4 COLUMN 40
-                   VALUE "Customer Management: Update Customer".
+                   VALUE "Customer Management: Delete Customer".
            05  INPUT-PROMPTS.
                10  LINE 8 COLUMN 20       VALUE "FIRST NAME: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "LAST NAME: ".
@@ -119,31 +119,38 @@
                10  LINE PLUS 2 COLUMN 20  VALUE "CITY: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "STATE ABBREVIATION: ".
                10  LINE PLUS 2 COLUMN 20  VALUE "ZIPCODE: ".
+               10  LINE PLUS 3 COLUMN 20  VALUE "DELETION STATUS: ".
+               10  LINE 25     COLUMN 43  VALUE
+                                            "Y(DELETED)/N(NOT DELETED)".
+
+               10  LINE 8 COLUMN 40        PIC X(20)
+                                FROM TRANS-FNAME-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC X(20)
+                                FROM TRANS-LNAME-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC 9(10)
+                                FROM TRANS-PHONE-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC X(35)
+                                FROM TRANS-EMAIL-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC X(35)
+                                FROM TRANS-ADDRS-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC X(15)
+                                FROM TRANS-CITY-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC XX
+                                FROM TRANS-STATE-IN.
+               10  LINE PLUS 2 COLUMN 40   PIC 9(5)
+                                FROM TRANS-ZIP-IN.
+
            05  INPUT-FIELDS
                    REVERSE-VIDEO
                    AUTO.
-               10  LINE 8 COLUMN 39        PIC X(20)
-                                USING TRANS-FNAME-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC X(20)
-                                USING TRANS-LNAME-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC 9(10)
-                                USING TRANS-PHONE-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC X(35)
-                                USING TRANS-EMAIL-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC X(35)
-                                USING TRANS-ADDRS-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC X(15)
-                                 USING TRANS-CITY-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC XX
-                                USING TRANS-STATE-IN.
-               10  LINE PLUS 2 COLUMN 39   PIC 9(5)
-                                  USING TRANS-ZIP-IN.
+               10  LINE 25 COLUMN 40   PIC X
+                                  USING TRANS-DST-IN.
 
        01  SCREEN-2.
            05  BACKGROUND-COLOR BLACK
                AUTO.
                10  LINE 24 COLUMN 20
-                       VALUE "IS CUSTOMER INFOMATION CORRECT"
+                       VALUE "Are you sure?"
                        FOREGROUND-COLOR RED
                        HIGHLIGHT.
                10  VALUE " (Y/N)? "
@@ -189,6 +196,7 @@
            PERFORM UNTIL MORE-RECS = "N" OR "n"
              MOVE "N" TO INFO-OK
              MOVE " " TO MSSG-OUT
+             DISPLAY SPACES BLANK SCREEN
              DISPLAY UPD-SCREEN
              ACCEPT  UPD-SCREEN
              IF CUS-ID-IN > 00000
@@ -199,22 +207,25 @@
              IF DATA-OK = 'F'
                PERFORM UNTIL INFO-OK = "Y" OR "y"
                  DISPLAY CLEAR-SCREEN
+                 DISPLAY SPACES BLANK SCREEN
                  DISPLAY SCREEN-1
                  ACCEPT SCREEN-1
                  DISPLAY SCREEN-2
                  ACCEPT SCREEN-2
                END-PERFORM
-               PERFORM 200-UPDATE-RTN
+               PERFORM 200-DEL-RTN
+               MOVE 'Customer successfully Deleted.' TO MSSG-OUT
              ELSE
                DISPLAY CLEAR-SCREEN
                MOVE 'Customer could not be found.' TO MSSG-OUT
              END-IF
+             DISPLAY SPACES BLANK SCREEN
              DISPLAY SCREEN-3
              ACCEPT SCREEN-3
            END-PERFORM
            STOP RUN.
 
-       200-UPDATE-RTN.
+       200-DEL-RTN.
            OPEN I-O CUS-FILE
            MOVE 'N' TO DATA-OK
            PERFORM UNTIL DATA-OK = 'F'
@@ -242,8 +253,8 @@
                  PERFORM 400-MOVE-RTN
                  MOVE 'F' TO DATA-OK
                ELSE
-                 MOVE 'Customer has been deleted. See Admin for help.'
-                      TO MSSG-OUT
+                 PERFORM 400-MOVE-RTN
+                 MOVE 'F' TO DATA-OK
                END-IF
              END-IF
            END-PERFORM
@@ -262,9 +273,8 @@
                        PERFORM 400-MOVE-RTN
                        MOVE "F" TO DATA-OK
                      ELSE
-                       MOVE
-                        'Customer has been deleted. See Admin for help.'
-                        TO MSSG-OUT
+                       PERFORM 400-MOVE-RTN
+                       MOVE "F" TO DATA-OK
                      END-IF
                  END-EVALUATE
              END-EVALUATE
@@ -299,16 +309,12 @@
            IF READ-TYPE = "ID"
              MOVE TRANS-ID-IN TO CUST-ID-REC
              READ CUS-FILE
-               INVALID KEY MOVE 'NOT FOUND - TRY AGAIN' TO MSSG-OUT
-                           MOVE "N" TO DATA-OK
-               NOT INVALID KEY MOVE 'SUCCESSFULLY FOUND' TO MSSG-OUT
+               INVALID KEY MOVE "N" TO DATA-OK
              END-READ
            ELSE
              MOVE TRANS-LNAME-IN TO CUST-LNAME-REC
              READ CUS-FILE
-               INVALID KEY MOVE 'NOT FOUND - TRY AGAIN' TO MSSG-OUT
-                           MOVE "N" TO DATA-OK
-               NOT INVALID KEY MOVE 'SUCCESSFULLY FOUND' TO MSSG-OUT
+               INVALID KEY MOVE "N" TO DATA-OK
              END-READ.
 
-       END PROGRAM CUSUPD.
+       END PROGRAM CUSDEL.
